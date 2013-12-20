@@ -1,7 +1,7 @@
-tornado-prototype
+QiiTa-pet
 =================
 
-Showing implementation of a tornado-redis-celery setup with a login system, push notifications on celery jobs, and file uploads.
+Qiita web frontend based on a tornado-redis-celery setup with a login system, push notifications on celery jobs, and file uploads.
 
 REQUIREMENTS
 =================
@@ -36,7 +36,7 @@ For the postgres database setup, do the following:
 
 Start the webserver by running webserver.py
 
-Navigate to localhost:8888 and create a user/pass to log in with. Everything else should be self explanatory.
+Navigate to localhost:443 and create a user/pass to log in with. Everything else should be self explanatory.
 
 KNOWN ISSUES
 =================
