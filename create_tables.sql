@@ -1,9 +1,6 @@
--- These tables are still prototype. The job_datatype and job_qiime
+-- These tables are still prototype. The job_datatype and job_type should be relational to tables with the allowable datatype and qiime analyses available, respectively.
+
 --- TABLES FOR POSTGRES
-
-CREATE DATABASE qiita;
-
-USE qiita;
 
 CREATE TABLE qiita_users (
     qiita_username varchar(255) PRIMARY KEY,
