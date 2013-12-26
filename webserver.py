@@ -184,7 +184,7 @@ class WaitingHandler(BaseHandler):
             analysis_done = bool(jobhold[0])
             analysis_id = jobhold[1]
         except Exception, e:
-            raise SyntaxError("ERROR: JOB INFO CAN NOT BE RETRIEVED:\n"+str(e))
+            print "ERROR: JOB INFO CAN NOT BE RETRIEVED:\n"+str(e)
         if analysis_done:
             self.redirect('/completed/'+analysis)
         else:
@@ -211,7 +211,7 @@ class WaitingHandler(BaseHandler):
         self.render("waiting.html", user=username, job=metaAnalysis.get_job(), 
             analyses=analyses)
         #MUST CALL CELERY AFTER PAGE CALL!
-        switchboard(username, metaAnalysis)
+        switchboard.delay(username, metaAnalysis)
 
 class RunningHandler(BaseHandler):
     '''Currently running jobs list handler'''
@@ -380,6 +380,7 @@ def main():
     tornado.options.parse_command_line()
     http_server = tornado.httpserver.HTTPServer(Application())
     http_server.listen(options.port)
+    print "Tornado started on port", options.port
     tornado.ioloop.IOLoop.instance().start()
 
 if __name__ == "__main__":

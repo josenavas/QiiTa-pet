@@ -94,6 +94,7 @@ def delete_job(user, jobid):
         raise Exception("Can't remove metaanalysis from database!\n"+str(e))
 
 
+@celery.task
 def switchboard(user, analysis_data):
     '''Fires off all analyses for a given job.
 
