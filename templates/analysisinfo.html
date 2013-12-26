@@ -7,7 +7,7 @@
             <span color='Red'>JOB FINISHED WITH ERROR!</span>
         {% else %}
             {% if astep['job_results'] != None %}
-                {% for file in astep['results'] %}
+                {% for file in astep['job_results'] %}
                 <a href="../{{file}}">{{file}}</a> 
                 {% end %}
             {% end %}

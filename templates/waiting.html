@@ -10,9 +10,10 @@
 
         websocket.onopen = function() {
             websocket.send(JSON.stringify({'msg': 'user:{{user}}'}));
+            console.log(JSON.stringify({'msg': 'user:{{user}}'}));
         };
         websocket.onmessage = function(evt) {
-            console.log(evt.data)
+            console.log(evt.data);
             message = JSON.parse(evt.data);
             if(message.job == '{{job}}') {
                 if(noerror && message.msg == 'allcomplete') { 
@@ -37,7 +38,7 @@
             }
         };
         websocket.onerror = function(evt) { };
-    };
+    }
 
     window.onload = function() {
   connect();

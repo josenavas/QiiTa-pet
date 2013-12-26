@@ -211,7 +211,7 @@ class WaitingHandler(BaseHandler):
         self.render("waiting.html", user=username, job=metaAnalysis.get_job(), 
             analyses=analyses)
         #MUST CALL CELERY AFTER PAGE CALL!
-        switchboard.delay(username, metaAnalysis)
+        switchboard(username, metaAnalysis)
 
 class RunningHandler(BaseHandler):
     '''Currently running jobs list handler'''
@@ -264,10 +264,10 @@ class ShowJobHandler(BaseHandler):
             pgcursor.execute(SQL, (user, analysis))
             analysisinfo = pgcursor.fetchall()
             pgcursor.close()
-            self.render("jobinfo.html", user=user, analysis=analysis, 
+            self.render("analysisinfo.html", user=user, analysis=analysis, 
                 analysisinfo=analysisinfo)
         except Exception, e:
-            raise SyntaxError("ERROR:JOB INFO CAN'T BE RETRIEVED:\n"+e+"\n"+SQL)
+            raise SyntaxError("ERROR:JOB INFO CAN'T BE RETRIEVED:\n"+str(e)+"\n"+SQL)
 
 
     @tornado.web.authenticated
