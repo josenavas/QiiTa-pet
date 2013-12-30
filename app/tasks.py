@@ -19,6 +19,7 @@ try:
 except:
     raise RuntimeError("ERROR: unable to connect to the POSTGRES database.")
 
+@celery.task
 def push_notification(user, job, analysis, msg, files=[], done=False):
     '''Creates JSON and takes care of push notification'''
     jsoninfo = {
@@ -33,8 +34,11 @@ def push_notification(user, job, analysis, msg, files=[], done=False):
         jsoninfo['done'] = 0
     jsoninfo = dumps(jsoninfo)
     #need the rpush and publish for leaving page and if race condition
-    r_server.rpush(user + ":messages", jsoninfo)
-    r_server.publish(user, jsoninfo)
+    try:
+        r_server.rpush(user + ":messages", jsoninfo)
+        r_server.publish(user, jsoninfo)
+    except Exception, e:
+        print "Can't push!\n", str(e), "\n", str(jsoninfo)
 
 
 def finish_analysis(user, analysisname, analysisid, results):
@@ -44,7 +48,7 @@ def finish_analysis(user, analysisname, analysisid, results):
             r_server.lrem(user+':messages', message)
     #update job to done in job table
     pgcursor = postgres.cursor()
-    SQL = "UPDATE qiita_analysis SET done = true WHERE analysis_id = %s"
+    SQL = "UPDATE qiita_analysis SET analysis_done = true WHERE analysis_id = %s"
     try:
         pgcursor.execute(SQL, (analysisid,))
         postgres.commit()
@@ -87,6 +91,7 @@ def delete_job(user, jobid):
     except Exception, e:
         postgres.rollback()
         raise Exception("Can't remove metaanalysis from database!\n"+str(e))
+
 
 @celery.task
 def switchboard(user, analysis_data):
@@ -139,8 +144,8 @@ def switchboard(user, analysis_data):
                 analysis_data.get_options(datatype, analysis)))
             analgroup.append(s)
     job = group(analgroup)
-    res = job()
-    results = res.get()
+    res = job.apply_async()
+    results = res.join()
     finish_analysis(user, jobname, jobid, results)
 
 
@@ -149,7 +154,7 @@ def OTU_Table(user, jobname, datatype, opts):
     push_notification(user, jobname, datatype + ':OTU_Table', 'Running')
     try:
         sleep(randint(5,20))
-        results = ['file%s.txt' % str(x) for x in range(0,randint(0,3))]
+        results = ["placeholder.html"]
         push_notification(user, jobname, datatype + ':OTU_Table', 'Completed',
             results, done=True)
     except Exception, e:
@@ -165,7 +170,7 @@ def TopiaryExplorer_Visualization(user, jobname, datatype, opts):
         datatype + ':TopiaryExplorer_Visualization', 'Running')
     try:
         sleep(randint(5,20))
-        results = ['file%s.txt' % str(x) for x in range(0,randint(0,3))]
+        results = ["placeholder.html"]
         push_notification(user, jobname, 
             datatype + ':TopiaryExplorer_Visualization', 'Completed',
             results, done=True)
@@ -181,7 +186,7 @@ def Heatmap(user, jobname, datatype, opts):
     push_notification(user, jobname, datatype + ':Heatmap', 'Running')
     try:
         sleep(randint(5,20))
-        results = ['file%s.txt' % str(x) for x in range(0,randint(0,3))]
+        results = ["placeholder.html"]
         push_notification(user, jobname, datatype + ':Heatmap', 'Completed',
             results, done=True)
     except Exception, e:
@@ -196,7 +201,7 @@ def Heatmap(user, jobname, datatype, opts):
     push_notification(user, jobname, datatype + ':Heatmap', 'Running')
     try:
         sleep(randint(5,20))
-        results = ['file%s.txt' % str(x) for x in range(0,randint(0,3))]
+        results = ["placeholder.html"]
         push_notification(user, jobname, datatype + ':Heatmap', 'Completed',
             results, done=True)
     except Exception, e:
@@ -211,7 +216,7 @@ def Heatmap(user, jobname, datatype, opts):
     push_notification(user, jobname, datatype + ':Heatmap', 'Running')
     try:
         sleep(randint(5,20))
-        results = ['file%s.txt' % str(x) for x in range(0,randint(0,3))]
+        results = ["placeholder.html"]
         push_notification(user, jobname, datatype + ':Heatmap', 'Completed',
             results, done=True)
     except Exception, e:
@@ -226,7 +231,7 @@ def Taxonomy_Summary(user, jobname, datatype, opts):
     push_notification(user, jobname, datatype + ':Taxonomy_Summary', 'Running')
     try:
         sleep(randint(5,20))
-        results = ['file%s.txt' % str(x) for x in range(0,randint(0,3))]
+        results = ["placeholder.html"]
         push_notification(user, jobname, datatype + ':Taxonomy_Summary', 'Completed',
             results, done=True)
     except Exception, e:
@@ -241,7 +246,7 @@ def Alpha_Diversity(user, jobname, datatype, opts):
     push_notification(user, jobname, datatype + ':Alpha_Diversity', 'Running')
     try:
         sleep(randint(5,20))
-        results = ['file%s.txt' % str(x) for x in range(0,randint(0,3))]
+        results = ["placeholder.html"]
         push_notification(user, jobname, datatype + ':Alpha_Diversity', 'Completed',
             results, done=True)
     except Exception, e:
@@ -256,7 +261,7 @@ def Beta_Diversity(user, jobname, datatype, opts):
     push_notification(user, jobname, datatype + ':Beta_Diversity', 'Running')
     try:
         sleep(randint(5,20))
-        results = ['file%s.txt' % str(x) for x in range(0,randint(0,3))]
+        results = ["placeholder.html"]
         push_notification(user, jobname, datatype + ':Beta_Diversity', 'Completed',
             results, done=True)
     except Exception, e:
@@ -271,7 +276,7 @@ def Procrustes(user, jobname, datatype, opts):
     push_notification(user, jobname, datatype + ':Procrustes', 'Running')
     try:
         sleep(randint(5,20))
-        results = ['file%s.txt' % str(x) for x in range(0,randint(0,3))]
+        results = ["placeholder.html"]
         push_notification(user, jobname, datatype + ':Procrustes', 'Completed',
             results, done=True)
     except Exception, e:
@@ -286,7 +291,7 @@ def Network_Analysis(user, jobname, datatype, opts):
     push_notification(user, jobname, datatype + ':Network_Analysis', 'Running')
     try:
         sleep(randint(5,20))
-        results = ['file%s.txt' % str(x) for x in range(0,randint(0,3))]
+        results = ["placeholder.html"]
         push_notification(user, jobname, datatype + ':Network_Analysis', 'Completed',
             results, done=True)
     except Exception, e:

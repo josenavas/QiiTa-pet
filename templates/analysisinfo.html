@@ -1,17 +1,25 @@
 {% extends sitebase.html %}
+
 {%block content %}
     <h1>Analysis {{analysis}}</h1>  
+    <table width="100%"><tr><td width="10%">
     {% for astep in analysisinfo %}
         {{astep['job_datatype']}} - {{astep['job_type']}}<br />
         {% if astep['job_error'] %}
             <span color='Red'>JOB FINISHED WITH ERROR!</span>
         {% else %}
             {% if astep['job_results'] != None %}
-                {% for file in astep['results'] %}
-                <a href="../{{file}}">{{file}}</a> 
+                {% for file in astep['job_results'] %}
+                    <a href="../static/results/{{user}}/jobname/{{file}}" target="result">{{file}}</a> 
                 {% end %}
             {% end %}
         {% end %}
         <br \>
     {% end %}
+    </td><td>
+    <iframe id="result" name="result" src="about:blank" frameborder="0" width="100%" height="100%">
+        Your browser does not support iFrames. Please update your browser to one that does.
+    </iframe>
+    </td></tr>
+    </table>
 {% end %}

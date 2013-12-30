@@ -184,7 +184,7 @@ class WaitingHandler(BaseHandler):
             analysis_done = bool(jobhold[0])
             analysis_id = jobhold[1]
         except Exception, e:
-            raise SyntaxError("ERROR: JOB INFO CAN NOT BE RETRIEVED:\n"+str(e))
+            print "ERROR: JOB INFO CAN NOT BE RETRIEVED:\n"+str(e)
         if analysis_done:
             self.redirect('/completed/'+analysis)
         else:
@@ -264,10 +264,10 @@ class ShowJobHandler(BaseHandler):
             pgcursor.execute(SQL, (user, analysis))
             analysisinfo = pgcursor.fetchall()
             pgcursor.close()
-            self.render("jobinfo.html", user=user, analysis=analysis, 
+            self.render("analysisinfo.html", user=user, analysis=analysis, 
                 analysisinfo=analysisinfo)
         except Exception, e:
-            raise SyntaxError("ERROR:JOB INFO CAN'T BE RETRIEVED:\n"+e+"\n"+SQL)
+            raise SyntaxError("ERROR:JOB INFO CAN'T BE RETRIEVED:\n"+str(e)+"\n"+SQL)
 
 
     @tornado.web.authenticated
@@ -380,6 +380,7 @@ def main():
     tornado.options.parse_command_line()
     http_server = tornado.httpserver.HTTPServer(Application())
     http_server.listen(options.port)
+    print "Tornado started on port", options.port
     tornado.ioloop.IOLoop.instance().start()
 
 if __name__ == "__main__":
