@@ -39,7 +39,6 @@ def push_notification(user, job, analysis, msg, files=[], done=False):
         r_server.publish(user, jsoninfo)
     except Exception, e:
         print "Can't push!\n", str(e), "\n", str(jsoninfo)
-    print "PUSHED", job, analysis
 
 
 def finish_analysis(user, analysisname, analysisid, results):
@@ -152,7 +151,6 @@ def switchboard(user, analysis_data):
 
 @celery.task
 def OTU_Table(user, jobname, datatype, opts):
-    print "OTU_Table"
     push_notification(user, jobname, datatype + ':OTU_Table', 'Running')
     try:
         sleep(randint(5,20))
