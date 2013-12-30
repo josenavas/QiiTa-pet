@@ -156,7 +156,7 @@ def OTU_Table(user, jobname, datatype, opts):
     push_notification(user, jobname, datatype + ':OTU_Table', 'Running')
     try:
         sleep(randint(5,20))
-        results = ['file%s.txt' % str(x) for x in range(0,randint(0,3))]
+        results = ["placeholder.html"]
         push_notification(user, jobname, datatype + ':OTU_Table', 'Completed',
             results, done=True)
     except Exception, e:
@@ -172,7 +172,7 @@ def TopiaryExplorer_Visualization(user, jobname, datatype, opts):
         datatype + ':TopiaryExplorer_Visualization', 'Running')
     try:
         sleep(randint(5,20))
-        results = ['file%s.txt' % str(x) for x in range(0,randint(0,3))]
+        results = ["placeholder.html"]
         push_notification(user, jobname, 
             datatype + ':TopiaryExplorer_Visualization', 'Completed',
             results, done=True)
@@ -188,7 +188,7 @@ def Heatmap(user, jobname, datatype, opts):
     push_notification(user, jobname, datatype + ':Heatmap', 'Running')
     try:
         sleep(randint(5,20))
-        results = ['file%s.txt' % str(x) for x in range(0,randint(0,3))]
+        results = ["placeholder.html"]
         push_notification(user, jobname, datatype + ':Heatmap', 'Completed',
             results, done=True)
     except Exception, e:
@@ -203,7 +203,7 @@ def Heatmap(user, jobname, datatype, opts):
     push_notification(user, jobname, datatype + ':Heatmap', 'Running')
     try:
         sleep(randint(5,20))
-        results = ['file%s.txt' % str(x) for x in range(0,randint(0,3))]
+        results = ["placeholder.html"]
         push_notification(user, jobname, datatype + ':Heatmap', 'Completed',
             results, done=True)
     except Exception, e:
@@ -218,7 +218,7 @@ def Heatmap(user, jobname, datatype, opts):
     push_notification(user, jobname, datatype + ':Heatmap', 'Running')
     try:
         sleep(randint(5,20))
-        results = ['file%s.txt' % str(x) for x in range(0,randint(0,3))]
+        results = ["placeholder.html"]
         push_notification(user, jobname, datatype + ':Heatmap', 'Completed',
             results, done=True)
     except Exception, e:
@@ -233,7 +233,7 @@ def Taxonomy_Summary(user, jobname, datatype, opts):
     push_notification(user, jobname, datatype + ':Taxonomy_Summary', 'Running')
     try:
         sleep(randint(5,20))
-        results = ['file%s.txt' % str(x) for x in range(0,randint(0,3))]
+        results = ["placeholder.html"]
         push_notification(user, jobname, datatype + ':Taxonomy_Summary', 'Completed',
             results, done=True)
     except Exception, e:
@@ -248,7 +248,7 @@ def Alpha_Diversity(user, jobname, datatype, opts):
     push_notification(user, jobname, datatype + ':Alpha_Diversity', 'Running')
     try:
         sleep(randint(5,20))
-        results = ['file%s.txt' % str(x) for x in range(0,randint(0,3))]
+        results = ["placeholder.html"]
         push_notification(user, jobname, datatype + ':Alpha_Diversity', 'Completed',
             results, done=True)
     except Exception, e:
@@ -263,7 +263,7 @@ def Beta_Diversity(user, jobname, datatype, opts):
     push_notification(user, jobname, datatype + ':Beta_Diversity', 'Running')
     try:
         sleep(randint(5,20))
-        results = ['file%s.txt' % str(x) for x in range(0,randint(0,3))]
+        results = ["placeholder.html"]
         push_notification(user, jobname, datatype + ':Beta_Diversity', 'Completed',
             results, done=True)
     except Exception, e:
@@ -278,7 +278,7 @@ def Procrustes(user, jobname, datatype, opts):
     push_notification(user, jobname, datatype + ':Procrustes', 'Running')
     try:
         sleep(randint(5,20))
-        results = ['file%s.txt' % str(x) for x in range(0,randint(0,3))]
+        results = ["placeholder.html"]
         push_notification(user, jobname, datatype + ':Procrustes', 'Completed',
             results, done=True)
     except Exception, e:
@@ -293,7 +293,7 @@ def Network_Analysis(user, jobname, datatype, opts):
     push_notification(user, jobname, datatype + ':Network_Analysis', 'Running')
     try:
         sleep(randint(5,20))
-        results = ['file%s.txt' % str(x) for x in range(0,randint(0,3))]
+        results = ["placeholder.html"]
         push_notification(user, jobname, datatype + ':Network_Analysis', 'Completed',
             results, done=True)
     except Exception, e:
