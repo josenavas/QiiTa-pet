@@ -1,9 +1,9 @@
 #header 
 {
     background: url(../static/img/logo.jpg) no-repeat left top;
-    padding-top: 110px;
+    height: 115px;
     margin: 0px;
-    padding-bottom: 0px;
+    padding:0px;
 }
 
 .container 
