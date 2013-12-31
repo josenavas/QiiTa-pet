@@ -1,12 +1,15 @@
 #header 
 {
     background: url(../static/img/logo.jpg) no-repeat left top;
-    padding-top: 140px;
+    height: 115px;
+    margin: 0px;
+    padding:0px;
 }
 
 .container 
 {
-    margin: 0 auto;
+    margin: 0px;
+    padding:0px;
     position: relative;
     background: #000;
 }
@@ -19,5 +22,6 @@
     right: 10px;
     width: 100%;
     color: #ccc;
+    text-decoration: none;
     font: 15px normal Arial, Helvetica, sans-serif;
 }
