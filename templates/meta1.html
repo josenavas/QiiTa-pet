@@ -25,6 +25,41 @@ function listbox_moveacross(sourceID, destID) {
         }
     }
 }
+
+function selectAll(name) { 
+  selElement = document.getElementById(name);
+  for (var i = 0; i < selectBox.options.length; i++) { 
+       selElement.options[i].selected = true; 
+  } 
+}
+
+function countSelected(name) {
+  count = 0;
+  element = document.getElementById(name);
+  for (var i=0; i < element.length; i++) {
+    if (element[i].selected) {count++;}
+  }
+  return count;
+}
+
+function validateForm() {
+  if(countSelected('studiesView') == 0) { 
+    document.getElementById('studyError').innerHTML = 'You must select at least one study!<br />';
+    return false; 
+  }
+  else { document.getElementById('studyError').innerHTML = '' }
+  if(countSelected('datatypeView') == 0) { 
+    document.getElementById('datatypeError').innerHTML = 'You must select at least one datatype!<br />';
+    return false; 
+  }
+  else { document.getElementById('datatypeError').innerHTML = '' }
+  if(countSelected('metadataUse') == 0) { 
+    document.getElementById('metadataError').innerHTML = 'You must select at least one metadata field!<br />'; 
+    return false; 
+  }
+  else { document.getElementById('metadataError').innerHTML = '' }
+  return true;
+}
 </script>
 {% end %}
 
@@ -40,7 +75,7 @@ function listbox_moveacross(sourceID, destID) {
       6) Analysis results<br />
     </td>
     <td>
-    <form action="/meta/2" method="post" id="meta1_form">
+    <form action="/meta/2" method="post" id="meta1_form" onsubmit="return(validateForm());">
       <p>
         <fieldset>
           <legend>Job Name</legend>
@@ -49,6 +84,7 @@ function listbox_moveacross(sourceID, destID) {
       </p>
       <p><fieldset>
         <legend>Select Studies</legend>
+        <span id="studyError" style="color:red"></span>
         <label for="studyType">Search:</label>
         <select id="studiesType">
           <option value="all">All</option>
@@ -68,6 +104,7 @@ function listbox_moveacross(sourceID, destID) {
 
       <p><fieldset>
         <legend>Data Type</legend>
+        <span id="datatypeError" style="color:red"></span>
         <select id="datatypeView" name="datatypeView" multiple="multiple" style="height:150px;width:300px;">
           <option value="16s">16s</option>
           <option value="Shotgun">Shotgun</option>
@@ -102,6 +139,7 @@ function listbox_moveacross(sourceID, destID) {
 
       <fieldset>
         <legend>Selected Metadata Fields</legend>
+        <span id="metadataError" style="color:red"></span>
         &nbsp;<br />
         <label for="select_fields2">Select Metadata Fields:</label>
         <select id="select_fields2">
@@ -113,6 +151,7 @@ function listbox_moveacross(sourceID, destID) {
         <select id="metadataUse" name="metadataUse" multiple="multiple" style="height:150px;width:300px;">
         </select>
       </fieldset></p>
+      <span id="error" style="display:none">There were errors. Please review your selections.</span>
       <input id="continue-btn"type="submit" value="Continue" tabindex="3">
     </form>
     </td>
