@@ -66,7 +66,7 @@ function validateForm() {
 {%block content %}
 <table width='100%'>
   <tr>
-    <td width=200>
+    <td width=180 valign='top'>
       <b>1) Choose studies</b><br />
       2) Select analyses<br />
       3) Set analysis options<br />
@@ -85,6 +85,7 @@ function validateForm() {
       <p><fieldset>
         <legend>Select Studies</legend>
         <span id="studyError" style="color:red"></span>
+        <!--
         <label for="studyType">Search:</label>
         <select id="studiesType">
           <option value="all">All</option>
@@ -93,6 +94,7 @@ function validateForm() {
           <option value="seqs">Other Thing</option>
         </select>
         <input type="textbox" id="searchstudy">
+        -->
         <br />
         <select id="studiesView" name="studiesView" multiple="multiple" style="height:150px;width:300px;">
           <option value="study1">Study1</option>
@@ -105,7 +107,7 @@ function validateForm() {
       <p><fieldset>
         <legend>Data Type</legend>
         <span id="datatypeError" style="color:red"></span>
-        <select id="datatypeView" name="datatypeView" multiple="multiple" style="height:150px;width:300px;">
+        <select id="datatypeView" name="datatypeView" multiple="multiple" style="height:80px;width:300px;">
           <option value="16s">16s</option>
           <option value="Shotgun">Shotgun</option>
           <option value="Metabolomics">Metabolomics</option>
@@ -115,6 +117,7 @@ function validateForm() {
 
       <p><fieldset>
         <legend>Available Metadata Fields</legend>
+        <!--
         <label for="common_fields">Show Common Fields Only:</label>
         <input id="common_fields" name="common_fields" type="checkbox" /><br />
         <label for="select_fields1">Select Metadata Fields:</label>
@@ -123,7 +126,9 @@ function validateForm() {
           <option value="all">All</option>
           <option value="none">None</option>
           <option value="inverted">Inverted</option>
-        </select><br />
+        </select>
+        -->
+        <br />
         <select id="metadataAll" multiple="multiple" style="height:150px;width:300px;">
           <option value="m1">m1</option>
           <option value="m2">m2</option>
@@ -141,13 +146,16 @@ function validateForm() {
         <legend>Selected Metadata Fields</legend>
         <span id="metadataError" style="color:red"></span>
         &nbsp;<br />
+        <!--
         <label for="select_fields2">Select Metadata Fields:</label>
         <select id="select_fields2">
           <option value=""></option>
           <option value="all">All</option>
           <option value="none">None</option>
           <option value="inverted">Inverted</option>
-        </select><br />
+        </select>
+        -->
+        <br />
         <select id="metadataUse" name="metadataUse" multiple="multiple" style="height:150px;width:300px;">
         </select>
       </fieldset></p>

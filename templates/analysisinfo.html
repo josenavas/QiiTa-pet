@@ -2,7 +2,9 @@
 
 {%block content %}
     <h1>Analysis {{analysis}}</h1>  
-    <table width="100%"><tr><td width="10%">
+    <table width="100%">
+    <tr>
+    <td  width=180 valign='top'>
     {% for astep in analysisinfo %}
         {{astep['job_datatype']}} - {{astep['job_type']}}<br />
         {% if astep['job_error'] %}
