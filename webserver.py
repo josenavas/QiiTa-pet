@@ -84,7 +84,7 @@ class AuthCreateHandler(BaseHandler):
         created, error = self.create_user(username, 
             sha512(self.get_argument("password", "")).hexdigest())
         if created:
-            self.redirect(self.get_argument("next", u"/"))
+            self.redirect(u"/auth/login/?error=User+created")
         else:
             error_msg = u"?error=" + tornado.escape.url_escape(error)
             self.redirect(u"/auth/create/" + error_msg)
