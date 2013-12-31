@@ -19,36 +19,29 @@
     </div>
   </div>
 </div>
-<table class="header_table">
-    <tr>
-        <td class="header_table_cell">        
-            <ul class="topnav">
-                <li><a href="/">Home</a></li>
-                {% if user != '' %}
-                <li>
-                    <a href="/meta/1" target="_parent">Meta Analysis</a>
-                    <ul class="subnav">
-                        <li><a href="/meta/1" target="_parent">New Meta-Analysis</a></li>
-                    </ul>
-                </li>
+<nav>     
+<ul>
+    <li><a href="/">Home</a></li>
+    {% if user != '' %}
+    <li>
+        <a href="/meta/1" target="_parent">Meta Analysis</a>
+        <ul>
+            <li><a href="/meta/1" target="_parent">New Meta-Analysis</a></li>
+            <li><a href="/running/" target="_parent">Running Meta-Analyses</a></li>
+        </ul>
+    </li>
 
-                <li>
-                    <a href="/" target="_parent">Tools</a>
-                    <ul class="subnav">
-                        <li><a href="/" target="_parent">Ontology Lookup Service</a></li>
-                        <li><a href="/" target="_parent">Georeference Utility</a></li>
-                    </ul>
-                </li>
-                {% else %}
-                <li>
-                  <a href="/">Please Log In</a>
-                </li>
-                {% end %}
-                <li><a href="/" target="_blank">Help</a></li>
-            </ul>
-            </td>
-        </tr>
-    </table>
+    <li>
+        <a href="/" target="_parent">Tools</a>
+        <ul>
+            <li><a href="/" target="_parent">Ontology Lookup Service</a></li>
+            <li><a href="/" target="_parent">Georeference Utility</a></li>
+        </ul>
+    </li>
+    {% end %}
+    <li><a href="/" target="_blank">Help</a></li>
+</ul>
+</nav>
 
 <div id="content">
   {% block content %}{% end %}
