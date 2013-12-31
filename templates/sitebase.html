@@ -24,12 +24,11 @@
         <td class="header_table_cell">        
             <ul class="topnav">
                 <li><a href="/">Home</a></li>
-                
-
+                {% if user != '' %}
                 <li>
                     <a href="/meta/1" target="_parent">Meta Analysis</a>
                     <ul class="subnav">
-                        <li><a href="/meta/1" target="_parent">Create New Meta-Analysis</a></li>
+                        <li><a href="/meta/1" target="_parent">New Meta-Analysis</a></li>
                     </ul>
                 </li>
 
@@ -40,6 +39,11 @@
                         <li><a href="/" target="_parent">Georeference Utility</a></li>
                     </ul>
                 </li>
+                {% else %}
+                <li>
+                  <a href="/">Please Log In</a>
+                </li>
+                {% end %}
                 <li><a href="/" target="_blank">Help</a></li>
             </ul>
             </td>

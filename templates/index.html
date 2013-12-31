@@ -1,6 +1,7 @@
 {% extends sitebase.html %}
 {%block content %}
- <h3>Completed jobs selection and review test</h3>
+<h2>Welcome to QiiTa.</h2>
+ <h3>Completed meta-analyses:</h3>
     <form action="/completed/" method="post" id='done_form' name='done_form'>
     <select name='analysis' id='analysis' form='done_form' required>
     {% for analysis in analyses %}
@@ -18,13 +19,13 @@
     </select>
     <input id="run-btn" class="btn btn-blue" type="submit" value="Del Job" tabindex="3">
 </form>
-    <h3>File Upload Test</h3>
+    <!-- <h3>File Upload Test</h3>
     <form enctype="multipart/form-data" action="/fileupload/" method="post">
         File: <input type="file" name="file"><br />
         New filename (NO EXTENSION): <br />
         <input type='text' name='filename'><br />
         <input type="submit" value="Upload">
-    </form> 
+    </form> -->
     <p><div id="logout">
         <a href="/auth/logout/">Logout</a>
     </div></p>
