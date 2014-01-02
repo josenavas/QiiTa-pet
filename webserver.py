@@ -256,44 +256,48 @@ class ShowJobHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self, analysis):
         user = self.get_current_user()
-
-        SQL = "SELECT * FROM qiita_job WHERE analysis_id = (SELECT analysis_id \
-            FROM qiita_analysis WHERE qiita_username = %s and analysis_name = %s)"
+        SQL = '''SELECT analysis_id FROM qiita_analysis WHERE 
+        qiita_username = %s AND analysis_name = %s'''
         try:
             pgcursor = postgres.cursor(cursor_factory=DictCursor)
             pgcursor.execute(SQL, (user, analysis))
+            analysisid = pgcursor.fetchone()[0]
+            SQL = "SELECT * FROM qiita_job WHERE analysis_id = %s"
+            pgcursor.execute(SQL, (analysisid,))
             analysisinfo = pgcursor.fetchall()
             pgcursor.close()
             self.render("analysisinfo.html", user=user, analysis=analysis, 
                 analysisinfo=analysisinfo)
         except Exception, e:
-            raise SyntaxError("ERROR:JOB INFO CAN'T BE RETRIEVED:\n"+str(e)+"\n"+SQL)
+            raise SyntaxError("ERROR:JOB INFO CAN'T BE RETRIEVED:\n"+str(e))
 
 
     @tornado.web.authenticated
     def post(self, page):
         analysis = self.get_argument('analysis')
         user = self.get_current_user()
-        SQL = "SELECT * FROM qiita_job WHERE analysis_id = (SELECT analysis_id \
-            FROM qiita_analysis WHERE qiita_username = %s and analysis_name = %s) \
-            ORDER BY job_datatype"
+        SQL = "SELECT * FROM qiita_job WHERE analysis_id = %s"
         try:
             pgcursor = postgres.cursor(cursor_factory=DictCursor)
-            pgcursor.execute(SQL, (user, analysis))
+            pgcursor.execute(SQL, (analysis,))
             analysisinfo = pgcursor.fetchall()
+            SQL = "SELECT analysis_name FROM qiita_analysis WHERE analysis_id = %s"
+            pgcursor.execute(SQL, (analysis,))
+            name = pgcursor.fetchone()[0]
+            pgcursor.close()
             pgcursor.close()
         except Exception, e:
             postgres.rollback()
             raise SyntaxError("ERROR: analysis INFO CAN NOT BE RETRIEVED:\n"+str(e))
-        self.render("analysisinfo.html", user=user, analysis=analysis, 
+        self.render("analysisinfo.html", user=user, analysis=name, 
              analysisinfo=analysisinfo)
 
 class DeleteJobHandler(BaseHandler):
     @tornado.web.authenticated
     def post(self):
         user = self.get_current_user()
-        analysisid = self.get_argument('analysisid')
-        delete_job.delay(user, analysisid)
+        analysisid = self.get_argument('analysis')
+        delete_job(user, analysisid)
         self.redirect('/')
 
 

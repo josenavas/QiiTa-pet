@@ -43,6 +43,11 @@ function countSelected(name) {
 }
 
 function validateForm() {
+  if(document.getElementById('jobname').value == '') { 
+    document.getElementById('jobError').innerHTML = 'You must name your study!<br />';
+    return false; 
+  }
+  else { document.getElementById('studyError').innerHTML = '' }
   if(countSelected('studiesView') == 0) { 
     document.getElementById('studyError').innerHTML = 'You must select at least one study!<br />';
     return false; 
@@ -79,6 +84,7 @@ function validateForm() {
       <p>
         <fieldset>
           <legend>Job Name</legend>
+          <span id="jobError" style="color:red"></span>
           <input type='textbox' id='jobname' name='jobname'>
         </fieldset>
       </p>
