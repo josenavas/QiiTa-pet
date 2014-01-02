@@ -81,14 +81,21 @@ function validateForm() {
     </td>
     <td>
     <form action="/meta/2" method="post" id="meta1_form" onsubmit="return(validateForm());">
-      <p>
+      <table width="70%" border="0">
+        <tr>
+           <td width="45%">
         <fieldset>
           <legend>Job Name</legend>
           <span id="jobError" style="color:red"></span>
           <input type='textbox' id='jobname' name='jobname'>
         </fieldset>
-      </p>
-      <p><fieldset>
+           </td>
+           <td width="10%"></td>
+           <td width="45%"></td>
+        </tr>
+        <tr>
+           <td width="45%">
+        <fieldset>
         <legend>Select Studies</legend>
         <span id="studyError" style="color:red"></span>
         <!--
@@ -100,28 +107,32 @@ function validateForm() {
           <option value="seqs">Other Thing</option>
         </select>
         <input type="textbox" id="searchstudy">
-        -->
         <br />
-        <select id="studiesView" name="studiesView" multiple="multiple" style="height:150px;width:300px;">
-          <option value="study1">Study1</option>
-          <option value="study2">Study2</option>
-          <option value="study3">Study3</option>
-          <option value="study4">Study4</option>
+        -->
+        <select id="studiesView" name="studiesView" multiple="multiple" style="height:110px;width:300px;">
+          <option value="IBD Swedish Project">IBD Swedish Project</option>
         </select>
-      </fieldset></p>
-
-      <p><fieldset>
+      </fieldset>
+           </td>
+           <td width="10%"></td>
+           <td width="45%">
+      <fieldset>
         <legend>Data Type</legend>
         <span id="datatypeError" style="color:red"></span>
-        <select id="datatypeView" name="datatypeView" multiple="multiple" style="height:80px;width:300px;">
-          <option value="16s">16s</option>
-          <option value="Shotgun">Shotgun</option>
-          <option value="Metabolomics">Metabolomics</option>
-          <option value="Combined">Combined</option>
+        <select id="datatypeView" name="datatypeView" multiple="multiple" style="height:110px;width:300px;">
+          <option value="16S">16S</option>
+          <option value="Metabolaties">Metabolaties</option>
+          <option value="Metagenomes">Metagenomes</option>
+          <option value="Metaproteomes isolates">Metaproteomes isolates</option>
+          <option value="Metaproteomes combined with metagenomes">Metaproteomes combined with metagenomes</option>
+          <option value="Combined">** Combine previous datasets **</option>
         </select>
-      </fieldset></p>
-
-      <p><fieldset>
+      </fieldset>
+           </td>
+        </tr>
+        <tr>
+           <td width="45%">
+      <fieldset>
         <legend>Available Metadata Fields</legend>
         <!--
         <label for="common_fields">Show Common Fields Only:</label>
@@ -133,26 +144,44 @@ function validateForm() {
           <option value="none">None</option>
           <option value="inverted">Inverted</option>
         </select>
-        -->
         <br />
-        <select id="metadataAll" multiple="multiple" style="height:150px;width:300px;">
-          <option value="m1">m1</option>
-          <option value="m2">m2</option>
-          <option value="m3">m3</option>
-          <option value="m4">m4</option>
+        -->
+        <select id="metadataAll" multiple="multiple" style="height:145px;width:300px;">
+          <option value="SampleID">SampleID</option>
+          <option value="BarcodeSequence">BarcodeSequence</option>
+          <option value="SampleName">SampleName</option>
+          <option value="DISEASE_STAT2">DISEASE_STAT2</option>
+          <option value="RUN_PREFIX">RUN_PREFIX</option>
+          <option value="AGE">AGE</option>
+          <option value="HOST_COMMON_NAME">HOST_COMMON_NAME</option>
+          <option value="HOST_TAXID">HOST_TAXID</option>
+          <option value="COLLECTION_DATE">COLLECTION_DATE</option>
+          <option value="SEX">SEX</option>
+          <option value="HOST_SUBJECT_ID">HOST_SUBJECT_ID</option>
+          <option value="ANONYMIZED_NAME">ANONYMIZED_NAME</option>
+          <option value="AGE_UNIT">AGE_UNIT</option>
+          <option value="Description_duplicate">Description_duplicate</option>
+          <option value="RUN_DATE">RUN_DATE</option>
+          <option value="DISEASE_STAT">DISEASE_STAT</option>
+          <option value="AGE_IN_YEARS">AGE_IN_YEARS</option>
+          <option value="YEAR_OF_BIRTH">YEAR_OF_BIRTH</option>
+          <option value="PAIR_NUMBER">PAIR_NUMBER</option>
+          <option value="Description">Description</option>
         </select>
       </fieldset>
-
-      <fieldset style='vertical-align: middle;'>
+           </td>
+           <td width="10%">
+      <fieldset style='vertical-align: middle; text-align:center;'>
         <input id="btnRight" type="button" value=">>>" tabindex="3" onclick='listbox_moveacross("metadataAll", "metadataUse")'><br />
         <input id="btnLeft" type="button" value="<<<" tabindex="3" onclick='listbox_moveacross("metadataUse", "metadataAll")'>
       </fieldset>
-
+           </td>
+           <td width="45%">
       <fieldset>
         <legend>Selected Metadata Fields</legend>
         <span id="metadataError" style="color:red"></span>
-        &nbsp;<br />
         <!--
+        &nbsp;<br />
         <label for="select_fields2">Select Metadata Fields:</label>
         <select id="select_fields2">
           <option value=""></option>
@@ -160,11 +189,25 @@ function validateForm() {
           <option value="none">None</option>
           <option value="inverted">Inverted</option>
         </select>
-        -->
         <br />
-        <select id="metadataUse" name="metadataUse" multiple="multiple" style="height:150px;width:300px;">
-        </select>
-      </fieldset></p>
+        -->
+        <select id="metadataUse" name="metadataUse" multiple="multiple" style="height:145px;width:300px;"></select>
+      </fieldset>
+
+           </td>
+        </tr>
+        <tr>
+           <td width="45%"></td>
+           <td width="10%"></td>
+           <td width="45%"></td>
+        </tr>
+        <tr>
+           <td width="45%"></td>
+           <td width="10%"></td>
+           <td width="45%"></td>
+        </tr>
+      </table>
+      
       <span id="error" style="display:none">There were errors. Please review your selections.</span>
       <input id="continue-btn"type="submit" value="Continue" tabindex="3">
     </form>
