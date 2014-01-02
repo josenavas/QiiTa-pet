@@ -246,7 +246,7 @@ def Alpha_Diversity(user, jobname, datatype, opts):
     push_notification(user, jobname, datatype + ':Alpha_Diversity', 'Running')
     try:
         sleep(randint(5,20))
-        results = ["placeholder.html"]
+        results = ["static/demo/alpha/%s/alpha_rarefaction_plots/rarefaction_plots.html" % datatype.lower()]
         push_notification(user, jobname, datatype + ':Alpha_Diversity', 'Completed',
             results, done=True)
     except Exception, e:
@@ -261,7 +261,10 @@ def Beta_Diversity(user, jobname, datatype, opts):
     push_notification(user, jobname, datatype + ':Beta_Diversity', 'Running')
     try:
         sleep(randint(5,20))
-        results = ["placeholder.html"]
+        if datatype=="16S":
+            results = ["static/demo/beta/emperor/unweighted_unifrac_16s/index.html", "static/demo/beta/emperor/weighted_unifrac_16s/index.html",]
+        else:
+            results = ["static/demo/beta/emperor/%s/index.html" % datatype.lower()]
         push_notification(user, jobname, datatype + ':Beta_Diversity', 'Completed',
             results, done=True)
     except Exception, e:
@@ -276,7 +279,7 @@ def Procrustes(user, jobname, datatype, opts):
     push_notification(user, jobname, datatype + ':Procrustes', 'Running')
     try:
         sleep(randint(5,20))
-        results = ["placeholder.html"]
+        results = ["%s/placeholder.html" % datatype]
         push_notification(user, jobname, datatype + ':Procrustes', 'Completed',
             results, done=True)
     except Exception, e:

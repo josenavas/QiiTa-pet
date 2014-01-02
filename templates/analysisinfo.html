@@ -12,7 +12,7 @@
         {% else %}
             {% if astep['job_results'] != None %}
                 {% for file in astep['job_results'] %}
-                    <a href="../static/results/{{user}}/jobname/{{file}}" target="result">{{file}}</a> 
+                    <a href="../{{file}}" target="result">{{file}}</a> 
                 {% end %}
             {% end %}
         {% end %}
