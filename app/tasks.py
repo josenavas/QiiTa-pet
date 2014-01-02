@@ -153,7 +153,7 @@ def switchboard(user, analysis_data):
 def OTU_Table(user, jobname, datatype, opts):
     push_notification(user, jobname, datatype + ':OTU_Table', 'Running')
     try:
-        sleep(randint(5,20))
+        sleep(randint(2,12))
         results = ["placeholder.html"]
         push_notification(user, jobname, datatype + ':OTU_Table', 'Completed',
             results, done=True)
@@ -169,7 +169,7 @@ def TopiaryExplorer_Visualization(user, jobname, datatype, opts):
     push_notification(user, jobname, 
         datatype + ':TopiaryExplorer_Visualization', 'Running')
     try:
-        sleep(randint(5,20))
+        sleep(randint(2,12))
         results = ["placeholder.html"]
         push_notification(user, jobname, 
             datatype + ':TopiaryExplorer_Visualization', 'Completed',
@@ -185,7 +185,7 @@ def TopiaryExplorer_Visualization(user, jobname, datatype, opts):
 def Heatmap(user, jobname, datatype, opts):
     push_notification(user, jobname, datatype + ':Heatmap', 'Running')
     try:
-        sleep(randint(5,20))
+        sleep(randint(2,12))
         results = ["placeholder.html"]
         push_notification(user, jobname, datatype + ':Heatmap', 'Completed',
             results, done=True)
@@ -200,7 +200,7 @@ def Heatmap(user, jobname, datatype, opts):
 def Heatmap(user, jobname, datatype, opts):
     push_notification(user, jobname, datatype + ':Heatmap', 'Running')
     try:
-        sleep(randint(5,20))
+        sleep(randint(2,12))
         results = ["placeholder.html"]
         push_notification(user, jobname, datatype + ':Heatmap', 'Completed',
             results, done=True)
@@ -215,7 +215,7 @@ def Heatmap(user, jobname, datatype, opts):
 def Heatmap(user, jobname, datatype, opts):
     push_notification(user, jobname, datatype + ':Heatmap', 'Running')
     try:
-        sleep(randint(5,20))
+        sleep(randint(2,12))
         results = ["placeholder.html"]
         push_notification(user, jobname, datatype + ':Heatmap', 'Completed',
             results, done=True)
@@ -230,7 +230,7 @@ def Heatmap(user, jobname, datatype, opts):
 def Taxonomy_Summary(user, jobname, datatype, opts):
     push_notification(user, jobname, datatype + ':Taxonomy_Summary', 'Running')
     try:
-        sleep(randint(5,20))
+        sleep(randint(2,12))
         results = ["placeholder.html"]
         push_notification(user, jobname, datatype + ':Taxonomy_Summary', 'Completed',
             results, done=True)
@@ -245,7 +245,7 @@ def Taxonomy_Summary(user, jobname, datatype, opts):
 def Alpha_Diversity(user, jobname, datatype, opts):
     push_notification(user, jobname, datatype + ':Alpha_Diversity', 'Running')
     try:
-        sleep(randint(5,20))
+        sleep(randint(2,12))
         results = ["static/demo/alpha/%s/alpha_rarefaction_plots/rarefaction_plots.html" % datatype.lower()]
         push_notification(user, jobname, datatype + ':Alpha_Diversity', 'Completed',
             results, done=True)
@@ -260,7 +260,7 @@ def Alpha_Diversity(user, jobname, datatype, opts):
 def Beta_Diversity(user, jobname, datatype, opts):
     push_notification(user, jobname, datatype + ':Beta_Diversity', 'Running')
     try:
-        sleep(randint(5,20))
+        sleep(randint(2,12))
         if datatype=="16S":
             results = ["static/demo/beta/emperor/unweighted_unifrac_16s/index.html", "static/demo/beta/emperor/weighted_unifrac_16s/index.html",]
         else:
@@ -278,8 +278,8 @@ def Beta_Diversity(user, jobname, datatype, opts):
 def Procrustes(user, jobname, datatype, opts):
     push_notification(user, jobname, datatype + ':Procrustes', 'Running')
     try:
-        sleep(randint(5,20))
-        results = ["%s/placeholder.html" % datatype]
+        sleep(randint(2,12))
+        results = ["static/demo/combined/plots/index.html"]
         push_notification(user, jobname, datatype + ':Procrustes', 'Completed',
             results, done=True)
     except Exception, e:
@@ -293,7 +293,7 @@ def Procrustes(user, jobname, datatype, opts):
 def Network_Analysis(user, jobname, datatype, opts):
     push_notification(user, jobname, datatype + ':Network_Analysis', 'Running')
     try:
-        sleep(randint(5,20))
+        sleep(randint(2,12))
         results = ["placeholder.html"]
         push_notification(user, jobname, datatype + ':Network_Analysis', 'Completed',
             results, done=True)
