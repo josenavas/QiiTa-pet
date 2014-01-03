@@ -11,7 +11,7 @@
         {% else %}
             {% if astep['job_results'] != None %}
                 {% for i,file in enumerate(astep['job_results']) %}
-                    <a class="link" href="../{{file}}" target="result">Plot {{ i+1 }}</a>
+                    <a class="link" href="../{{file}}" target="_blank">Plot {{ i+1 }}</a>
                     <br \> 
                 {% end %}
             {% end %}

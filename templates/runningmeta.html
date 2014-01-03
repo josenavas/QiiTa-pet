@@ -4,7 +4,7 @@
 <h1>Currently running meta-analyses</h1>
   {% for a in analyses %}
     <p>
-    <b><a class="link" href="/waiting/{{a['analysis_name']}}">{{a['analysis_name']}}</a></b><br />
+    <b><a target="_blank" class="link" href="/waiting/{{a['analysis_name']}}">{{a['analysis_name']}}</a></b><br />
     Started {{a['analysis_timestamp']}}
     </p>
   {% end %}
