@@ -153,7 +153,7 @@ def switchboard(user, analysis_data):
 def OTU_Table(user, jobname, datatype, opts):
     push_notification(user, jobname, datatype + ':OTU_Table', 'Running')
     try:
-        sleep(randint(5,20))
+        sleep(randint(3,10))
         results = ["placeholder.html"]
         push_notification(user, jobname, datatype + ':OTU_Table', 'Completed',
             results, done=True)
@@ -245,7 +245,7 @@ def Taxonomy_Summary(user, jobname, datatype, opts):
 def Alpha_Diversity(user, jobname, datatype, opts):
     push_notification(user, jobname, datatype + ':Alpha_Diversity', 'Running')
     try:
-        sleep(randint(5,20))
+        sleep(randint(1,20))
         results = ["static/demo/alpha/%s/alpha_rarefaction_plots/rarefaction_plots.html" % datatype.lower()]
         push_notification(user, jobname, datatype + ':Alpha_Diversity', 'Completed',
             results, done=True)
@@ -260,7 +260,7 @@ def Alpha_Diversity(user, jobname, datatype, opts):
 def Beta_Diversity(user, jobname, datatype, opts):
     push_notification(user, jobname, datatype + ':Beta_Diversity', 'Running')
     try:
-        sleep(randint(5,20))
+        sleep(randint(10,20))
         if datatype=="16S":
             results = ["static/demo/beta/emperor/unweighted_unifrac_16s/index.html", "static/demo/beta/emperor/weighted_unifrac_16s/index.html",]
         else:
@@ -278,7 +278,7 @@ def Beta_Diversity(user, jobname, datatype, opts):
 def Procrustes(user, jobname, datatype, opts):
     push_notification(user, jobname, datatype + ':Procrustes', 'Running')
     try:
-        sleep(randint(5,20))
+        sleep(randint(8,20))
         results = ["static/demo/combined/plots/index.html"]
         push_notification(user, jobname, datatype + ':Procrustes', 'Completed',
             results, done=True)
