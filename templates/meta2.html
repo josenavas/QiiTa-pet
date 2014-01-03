@@ -11,14 +11,26 @@
       6) Analysis results<br />
     </td>
     <td>
-    <form action="/meta/3" method="post" id="meta2_form">
+    
+    </br>
+    <input type="button" value="Check all" onclick="var cbs = document.getElementsByTagName('input'); for(var i=0; i < cbs.length; i++) if(cbs[i].type == 'checkbox') cbs[i].checked = true;">
+    &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+    <input type="button" value="Uncheck all" onclick="var cbs = document.getElementsByTagName('input'); for(var i=0; i < cbs.length; i++) if(cbs[i].type == 'checkbox') cbs[i].checked = false;">
+    </br></br>
+        
+    <form action="/meta/3" method="post" id="meta2_form" onsubmit="var check_count=0; var cbs = document.getElementsByTagName('input'); for(var i=0; i < cbs.length; i++) { if (cbs[i].type == 'checkbox' && cbs[i].checked) { check_count++; } }; if (check_count<1) { alert('You need to select some kind of processing.') ; return false; }">
       {% for type in datatypes %}
       <fieldset style="border: 1px;">
         <legend>{{type}}</legend>
+        <!-- 
         <input type='checkbox' name='{{type}}' id='{{type}}_OTU_Table' value='OTU_Table' disabled checked>
         <label for='{{type}}_OTU_Table'>OTU_Table</label><br />
+        -->
         <!-- Need the hidden to actually submit the OTU_Table value-->
+        <!-- 
         <input type="hidden" name='{{type}}' id='{{type}}_OTU_Table' value='OTU_Table' />
+        --> 
+        
         {% if type == 'Combined' %}
           {% for c in combined %}
             <input type='checkbox' name='{{type}}' id='{{type}}_{{c}}' value='{{c}}'>

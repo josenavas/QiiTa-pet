@@ -345,7 +345,8 @@ class MetaAnalysisHandler(BaseHandler):
             for datatype in metaAnalysis.get_datatypes():
                 for analysis in metaAnalysis.get_analyses(datatype):
                     metaAnalysis.set_options(datatype, analysis,
-                        {'opt1': 12, 'opt2': 'Nope'})
+                        {'Option A': 'default', 'Option B': 'default' })
+#                         {'opt1': 12, 'opt2': 'Nope'})
             self.render('meta4.html', user=self.user, analysisinfo=metaAnalysis)
         else:
             raise NotImplementedError("MetaAnalysis Page "+page+" missing!")

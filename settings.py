@@ -18,13 +18,13 @@ COOKIE_SECRET = base64.b64encode(uuid.uuid4().bytes + uuid.uuid4().bytes)
 
 #analyses available in QIIME. Don't forget the options template!
 SINGLE = [
-        'TopiaryExplorer_Visualization',
-        'Heatmap',
-        'Taxonomy_Summary',
+#         'TopiaryExplorer_Visualization',
+#         'Heatmap',
+#         'Taxonomy_Summary',
         'Alpha_Diversity',
         'Beta_Diversity',
         ]
 COMBINED = [
         'Procrustes',
-        'Network_Analysis',
+#         'Network_Analysis',
         ]
