@@ -32,8 +32,8 @@
                 }
                 list.innerHTML = message.msg + '<br />';
                 for(var i=0; i<message.results.length; i++) {
-                    list.innerHTML += '<a href="' + getBaseURL() + 
-                    message.results[i] + '">' + message.results[i] + '</a><br />';
+                    list.innerHTML += '<a class="link" target="_blank" href="' + getBaseURL() + 
+                    message.results[i] + '">Plot ' + (i+1) + '</a><br />';
                 }
             }
         };

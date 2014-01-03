@@ -46,7 +46,7 @@ nav ul li:hover > ul {
 
 
 nav ul {
-    background: #000; 
+    background: #A7A9AC; 
     padding: 0 20px; 
     list-style: none;
     position: relative;
@@ -61,39 +61,39 @@ nav ul {
         float: left;
     }
         nav ul li:hover {
-            background: #555;
+            background: #999;
         }
             nav ul li:hover a {
-                color: #fff;
+                color: #000;
             }
         
         nav ul li a {
             display: block; 
             padding: 10px 10px;
-            color: #fff; 
+            color: #000; 
             text-decoration: none;
             
         }
             
         
     nav ul ul {
-        background: #5f6975; 
+        background: #999; 
         border-radius: 0px; 
         padding: 0;
         position: absolute; top: 100%;
     }
         nav ul ul li {
             float: none; 
-            border-top: 1px solid #6b727c;
-            border-bottom: 1px solid #575f6a; 
+            border-top: 1px solid #999;
+            border-bottom: 1px solid #999; 
             position: relative;
         }
             nav ul ul li a {
                 padding: 10px 10px;
-                color: #fff;
+                color: #000;
             }   
                 nav ul ul li a:hover {
-                    background: #555;
+                    background: #888;
                 }
         
     nav ul ul ul {
