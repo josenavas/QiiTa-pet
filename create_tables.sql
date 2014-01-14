@@ -6,6 +6,8 @@ CREATE USER defaultuser WITH PASSWORD 'defaultpassword';
 
 CREATE DATABASE qiita;
 
+\connect qiita
+
 -- GRANT PRIVILEGES
 
 GRANT ALL PRIVILEGES ON DATABASE qiita TO defaultuser;
