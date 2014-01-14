@@ -14,7 +14,7 @@ Programs
 > postgreSQL 9.3.0
 
 Python libraries
-> tornado
+> tornado 3.1.1
 >
 > redis 2.8.0
 >
