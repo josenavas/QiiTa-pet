@@ -1,5 +1,15 @@
 -- These tables are still prototype. The job_datatype and job_type should be relational to tables with the allowable datatype and qiime analyses available, respectively.
 
+-- CREATE USERS and DATABASE
+
+CREATE USER defaultuser WITH PASSWORD 'defaultpassword';
+
+CREATE DATABASE qiita;
+
+-- GRANT PRIVILEGES
+
+GRANT ALL PRIVILEGES ON DATABASE qiita TO defaultuser;
+
 --- TABLES FOR POSTGRES
 
 CREATE TABLE qiita_users (
@@ -29,5 +39,18 @@ CREATE TABLE qiita_job (
     job_error bool DEFAULT false
 );
 
+-- GRANT PRIVILEGES
+
+GRANT ALL PRIVILEGES ON TABLE qiita_users to defaultuser;
+
+GRANT ALL PRIVILEGES ON TABLE qiita_analysis to defaultuser;
+
+GRANT ALL PRIVILEGES ON TABLE qiita_job to defaultuser;
+
+GRANT ALL PRIVILEGES ON SEQUENCE qiita_analysis_analysis_id_seq TO defaultuser;
+
+GRANT ALL PRIVILEGES ON SEQUENCE qiita_job_job_id_seq TO defaultuser;
+
+-- CREATE ADMIN USER WITH PASSWORD admin
 
 INSERT INTO qiita_users (qiita_username, qiita_password) VALUES ('admin', 'c7ad44cbad762a5da0a452f9e854fdc1e0e7a52a38015f23f3eab1d80b931dd472634dfac71cd34ebc35d16ab7fb8a90c81f975113d6c7538dc69dd8de9077ec');
