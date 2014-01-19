@@ -37,7 +37,7 @@ Start an IPython cluster:
 
 > ipcluster start -n 4
 
-Start the celery workers from the base folder:
+Start the celery workers from the qiita_pet folder:
 
 > celery -A app worker --concurrency 4
 
