@@ -43,8 +43,8 @@ function countSelected(name) {
 }
 
 function validateForm() {
-  if(document.getElementById('jobname').value == '') { 
-    document.getElementById('jobError').innerHTML = 'You must name your study!<br />';
+  if(document.getElementById('analysisname').value == '') { 
+    document.getElementById('anError').innerHTML = 'You must name your study!<br />';
     return false; 
   }
   else { document.getElementById('studyError').innerHTML = '' }
@@ -73,11 +73,11 @@ function validateForm() {
   <tr>
     <td width=180 valign='top'>
       <b>1) Choose studies</b><br />
-      2) Select analyses<br />
-      3) Set analysis options<br />
-      4) Review analysis<br />
-      5) Running analysis<br />
-      6) Analysis results<br />
+      2) Select QIIME analyses<br />
+      3) Set QIIME analysis options<br />
+      4) Review meta-analysis<br />
+      5) Running meta-analysis<br />
+      6) Meta-analysis results<br />
     </td>
     <td>
     <form action="/meta/2" method="post" id="meta1_form" onsubmit="return(validateForm());">
@@ -85,9 +85,9 @@ function validateForm() {
         <tr>
            <td width="45%">
         <fieldset>
-          <legend>Job Name</legend>
-          <span id="jobError" style="color:red"></span>
-          <input type='textbox' id='jobname' name='jobname'>
+          <legend>Meta-analysis Name</legend>
+          <span id="anError" style="color:red"></span>
+          <input type='textbox' id='analysisname' name='analysisname'>
         </fieldset>
            </td>
            <td width="10%"></td>

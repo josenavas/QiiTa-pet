@@ -1,7 +1,7 @@
 #adapted from https://github.com/leporo/tornado-redis/blob/master/demos/websockets
 
 from tornadoredis import Client
-from app.tasks import r_server
+from qiita_pet.app.connections import r_server
 from tornado.websocket import WebSocketHandler
 import tornado.gen
 from json import loads

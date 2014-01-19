@@ -15,11 +15,12 @@
         websocket.onmessage = function(evt) {
             console.log(evt.data);
             message = JSON.parse(evt.data);
-            if(message.job == '{{job}}') {
+            if(message.analysis == '{{analysis}}') {
                 if(noerror && message.msg == 'allcomplete') { 
-                    window.location.replace("/completed/{{job}}");
+                    window.location.replace("/completed/{{analysis}}");
                 }
-                list = document.getElementById(message.analysis);
+                console.log(message.analysis)
+                list = document.getElementById(message.job);
                 if(message.msg.indexOf("ERROR") != -1) {
                   list.style.color="Red";
                   noerror=false;
@@ -56,17 +57,17 @@ function getBaseURL () {
   <tr>
     <td width=180 valign='top'>
       1) Choose studies<br />
-      2) Select analyses<br />
-      3) Set analysis options<br />
-      4) Review analysis<br />
-      <b>5) Running analysis</b><br />
-      6) Analysis results<br />
+      2) Select QIIME analyses<br />
+      3) Set QIIME analysis options<br />
+      4) Review meta-analysis<br />
+      <b>5) Running meta-analysis</b><br />
+      6) Meta-analysis results<br />
     </td>
     <td>
-<h1>Analysis {{job}}</h1>
-  {% for analysis in analyses %}
+<h1>Meta-analysis {{analysis}}</h1>
+  {% for job in jobs %}
     <p>
-    {{analysis}}: <span id='{{analysis}}'>Queued</span>
+    {{job}}: <span id='{{job}}'>Queued</span>
     </p>
   {% end %}
 </td></tr></table>

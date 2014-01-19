@@ -12,6 +12,8 @@ Programs
 > redis-server 2.6.16
 >
 > postgreSQL 9.3.0
+>
+> IPython 1.1.0
 
 Python libraries
 > tornado 3.1.1
@@ -26,14 +28,26 @@ Python libraries
 
 RUNING THE EXAMPLE
 =================
-Start the background daemons for redis-server, postgreSQL, and celery
->For celery, run the following from the base folder: celery -A app worker --concurrency 4
+
+Add the base folder to your PYTHONPATH.
+
+Start the background daemons for redis-server and postgreSQL.
+
+Start an IPython cluster:
+
+> ipcluster start -n 4
+
+Start the celery workers from the base folder:
+
+> celery -A app worker --concurrency 4
 
 For the postgres database setup, follow the instructions in create_tables.sql
 
-Start the webserver by running webserver.py as root.
+Start the webserver by running:
 
-Navigate to localhost:443 and create a user/pass to log in with. Everything else should be self explanatory.
+> python webserver.py
+
+Navigate to localhost:8888 and create a user/pass to log in with. Everything else should be self explanatory.
 
 KNOWN ISSUES
 =================

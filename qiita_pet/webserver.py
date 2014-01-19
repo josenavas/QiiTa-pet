@@ -9,23 +9,18 @@ import tornado.web
 import tornado.websocket
 from tornado.options import define, options
 from hashlib import sha512
-from settings import *
-from app.tasks import switchboard, delete_job
-from push import MessageHandler
-from app.utils import MetaAnalysisData
-from psycopg2 import connect as pg_connect
+from qiita_pet.settings import *
+from qiita_pet.app.tasks import delete_job
+from qiita_pet.app.analysis import switchboard
+from qiita_pet.push import MessageHandler
+from qiita_pet.app.utils import MetaAnalysisData
+from qiita_pet.app.connections import postgres
 from psycopg2.extras import DictCursor
 #following only needed for filehandler
 from os.path import splitext
 from random import randint
 
-try:
-    postgres=pg_connect("dbname='qiita' user='defaultuser' \
-        password='defaultpassword' host='localhost'")
-except:
-    raise RuntimeError("ERROR: unable to connect to the POSTGRES database.")
-
-define("port", default=443, help="run on the given port", type=int)
+define("port", default=8888, help="run on the given port", type=int)
 
 metaAnalysis = MetaAnalysisData()
 
@@ -180,9 +175,9 @@ class WaitingHandler(BaseHandler):
         try:
             pgcursor = postgres.cursor(cursor_factory=DictCursor)
             pgcursor.execute(SQL, (username, analysis))
-            jobhold = pgcursor.fetchone()
-            analysis_done = bool(jobhold[0])
-            analysis_id = jobhold[1]
+            job_hold = pgcursor.fetchone()
+            analysis_done = bool(job_hold[0])
+            analysis_id = job_hold[1]
         except Exception, e:
             print "ERROR: JOB INFO CAN NOT BE RETRIEVED:\n"+str(e)
         if analysis_done:
@@ -192,26 +187,27 @@ class WaitingHandler(BaseHandler):
                 WHERE analysis_id = %s"
             try:
                 pgcursor.execute(SQL, (analysis_id,))
-                jobhold = pgcursor.fetchall()
+                job_hold = pgcursor.fetchall()
                 pgcursor.close()
             except Exception, e:
                 raise SyntaxError("ERROR: JOB INFO CAN NOT BE RETRIEVED:\n"+
                     str(e) + SQL % analysis_id)
-            analyses = []
-            for j in jobhold:
-                analyses.append(j[0]+":"+j[1])
-            self.render("waiting.html", user=username, job=analysis, analyses=analyses)
+            jobs = []
+            for j in job_hold:
+                jobs.append("%s:%s" % (j[0], j[1]))
+            self.render("waiting.html", user=username, analysis=analysis,
+                        jobs=jobs)
 
     @tornado.web.authenticated
     #This post function takes care of actual job submission
     def post(self, page):
         username = self.get_current_user()
-        analyses = metaAnalysis.options.keys()
-        analyses.sort()
-        self.render("waiting.html", user=username, job=metaAnalysis.get_job(), 
-            analyses=analyses)
-        #MUST CALL CELERY AFTER PAGE CALL!
-        switchboard.delay(username, metaAnalysis)
+        jobs = metaAnalysis.options.keys()
+        jobs.sort()
+        self.render("waiting.html", user=username,
+                    analysis=metaAnalysis.get_analysis(), jobs=jobs)
+        # MUST CALL IPYTHON AFTER PAGE CALL!
+        switchboard(username, metaAnalysis)
 
 class RunningHandler(BaseHandler):
     '''Currently running jobs list handler'''
@@ -323,7 +319,7 @@ class MetaAnalysisHandler(BaseHandler):
         if page == '1':
             pass
         elif page == '2':
-            metaAnalysis.set_job(self.get_argument('jobname'))
+            metaAnalysis.set_analysis(self.get_argument('analysisname'))
             metaAnalysis.set_studies(self.get_arguments('studiesView'))
             if  metaAnalysis.get_studies() == []:
                 raise ValueError('ERROR: Need at least one study to analyze.')
@@ -338,12 +334,12 @@ class MetaAnalysisHandler(BaseHandler):
                 combined=COMBINED)
         elif page == '3':
             for datatype in metaAnalysis.get_datatypes():
-                metaAnalysis.set_analyses(datatype, self.get_arguments(datatype))
+                metaAnalysis.set_jobs(datatype, self.get_arguments(datatype))
             self.render('meta3.html', user=self.user, analysisinfo=metaAnalysis)
         elif page == '4':
             #set options
             for datatype in metaAnalysis.get_datatypes():
-                for analysis in metaAnalysis.get_analyses(datatype):
+                for analysis in metaAnalysis.get_jobs(datatype):
                     metaAnalysis.set_options(datatype, analysis,
                         {'Option A': 'default', 'Option B': 'default' })
 #                         {'opt1': 12, 'opt2': 'Nope'})
