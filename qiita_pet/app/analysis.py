@@ -1,3 +1,14 @@
+#!/usr/bin/env python
+
+__author__ = "Joshua Shorenstein"
+__copyright__ = "Copyright 2013, The QiiTa-pet Project"
+__credits__ = ["Joshua Shorenstein", "Jose Antonio Navas Molina"]
+__license__ = "BSD"
+__version__ = "0.2.0-dev"
+__maintainer__ = "Jose Antonio Navas Molina"
+__email__ = "josenavasmolina@gmail.com"
+__status__ = "Development"
+
 from qiita_pet.app.connections import lview, postgres, r_server
 from time import sleep
 from json import dumps
@@ -8,6 +19,7 @@ from psycopg2 import Error as PostgresError
 ##################################
 #         Helper functions       #
 ##################################
+
 
 def push_notification(user, analysis, job, msg, files=[], done=False):
     """Creates JSON and takes care of push notification
@@ -30,13 +42,10 @@ def push_notification(user, analysis, job, msg, files=[], done=False):
         'job': job,
         'msg': msg,
         'results': files,
-        'done' : 1 if done else 0
+        'done': 1 if done else 0
     }
-    # if done:
-    #     jsoninfo['done'] = 1
-    # else:
-    #     jsoninfo['done'] = 0
     jsoninfo = dumps(jsoninfo)
+
     # Send the message
     try:
         # Need the rpush and publish for leaving page and if race condition
@@ -45,8 +54,10 @@ def push_notification(user, analysis, job, msg, files=[], done=False):
     except RedisError, e:
         # Push failed, return False and an error message
         return False, "Can't push!\n%s\n%s" % (str(e), str(jsoninfo))
+
     # Push successful, return True without any error message
     return True, None
+
 
 @lview.remote(block=False)
 def switchboard(user, analysis_data):
@@ -61,8 +72,8 @@ def switchboard(user, analysis_data):
     analysis_name = analysis_data.get_analysis()
 
     # Insert analysis into the postgres analysis table
-    SQL = """INSERT INTO qiita_analysis (qiita_username, analysis_name, 
-        analysis_studies, analysis_metadata, analysis_timestamp) VALUES 
+    SQL = """INSERT INTO qiita_analysis (qiita_username, analysis_name,
+        analysis_studies, analysis_metadata, analysis_timestamp) VALUES
         (%s, %s, %s, %s, 'now') RETURNING analysis_id"""
     sql_studies_list = "{%s}" % ','.join(analysis_data.get_studies())
     sql_metadata_list = "{%s}" % ','.join(analysis_data.get_metadata())
@@ -78,13 +89,13 @@ def switchboard(user, analysis_data):
         raise RuntimeError("Can't add meta analysis to table: %s" % str(e))
 
     # Insert all jobs into jobs table
-    SQL = """INSERT INTO qiita_job (analysis_id, job_datatype, job_type, 
+    SQL = """INSERT INTO qiita_job (analysis_id, job_datatype, job_type,
         job_options) VALUES (%s, %s, %s, %s)"""
     jobs_list = []
     for datatype in analysis_data.get_datatypes():
         for job in analysis_data.get_jobs(datatype):
-            jobs_list.append( (str(analysis_id), datatype, job, 
-                dumps(analysis_data.get_options(datatype, job))))
+            jobs_list.append((str(analysis_id), datatype, job,
+                             dumps(analysis_data.get_options(datatype, job))))
     try:
         pgcursor.executemany(SQL, jobs_list)
         postgres.commit()
@@ -92,14 +103,15 @@ def switchboard(user, analysis_data):
     except PostgresError, e:
         pgcursor.close()
         postgres.rollback()
-        raise RuntimeError("Can't add meta analysis jobs to table: %s" % str(e))
+        raise RuntimeError("Can't add meta analysis jobs to table: %s" %
+                           str(e))
 
     # Submit the jobs
     for datatype in analysis_data.get_datatypes():
         for job in analysis_data.get_jobs(datatype):
             opts = analysis_data.get_options(datatype, job)
             job_handler(user, analysis_id, analysis_name, datatype, job, opts)
-            # functions_dict[analysis](user, analysis_id, analysis_name, datatype, opts)
+
 
 @lview.remote(block=False)
 def job_handler(user, analysis_id, analysis_name, datatype, job, opts):
@@ -140,14 +152,15 @@ def job_handler(user, analysis_id, analysis_name, datatype, job, opts):
                           results, done=True)
     else:
         # Push the job failed
-        push_notification(user, analysis_name, datatype_job, 'ERROR', done=True)
+        push_notification(user, analysis_name, datatype_job, 'ERROR',
+                          done=True)
 
     # Mark current job as DONE in the DB and check if the other jobs
     # of the same analysis are done
 
     # Create a tuple with the SQL values
     # Format: (SQL list of output files, datatype, job run, analysis id)
-    sql_results = ( "{%s}" % ','.join(results), datatype, job, analysis_id)
+    sql_results = ("{%s}" % ','.join(results), datatype, job, analysis_id)
 
     # Update job in job table to done and with their results
     SQL = """UPDATE qiita_job SET job_done = true, job_results = %s WHERE
@@ -167,7 +180,7 @@ def job_handler(user, analysis_id, analysis_name, datatype, job, opts):
         pgcursor.execute(SQL, (analysis_id,))
         job_status = pgcursor.fetchall()
         pgcursor.close()
-    except  PostgresError, e:
+    except PostgresError, e:
         pgcursor.close()
         postgres.rollback()
         raise RuntimeError("Can't get job status: %s" % str(e))
@@ -175,6 +188,7 @@ def job_handler(user, analysis_id, analysis_name, datatype, job, opts):
     # If all done -> call finish analysis
     if all([status[0] for status in job_status]):
         finish_analysis(user, analysis_id, analysis_name)
+
 
 def finish_analysis(user, analysis_id, analysis_name):
     """Marks current analysis as done in the DB
@@ -215,71 +229,30 @@ def finish_analysis(user, analysis_id, analysis_name):
 # real QIIME functions            #
 ###################################
 
+
 def alpha_diversity(opts):
     """Dummy function"""
-    sleep(randint(5,10))
+    sleep(randint(5, 10))
     datatype = opts['datatype']
     results = ["static/demo/alpha/%s/alpha_rarefaction_plots/rarefaction_plots.html" % datatype.lower()]
     return True, results
 
+
 def beta_diversity(opts):
     """Dummy function"""
-    sleep(randint(10,20))
+    sleep(randint(10, 20))
     datatype = opts['datatype']
     if datatype == "16S":
-        results = ["static/demo/beta/emperor/unweighted_unifrac_16s/index.html", "static/demo/beta/emperor/weighted_unifrac_16s/index.html",]
+        results = ["static/demo/beta/emperor/unweighted_unifrac_16s/index.html",
+                   "static/demo/beta/emperor/weighted_unifrac_16s/index.html"]
     else:
         results = ["static/demo/beta/emperor/%s/index.html" % datatype.lower()]
     return True, results
 
+
 def procrustes(opts):
     """Dummy function"""
     # Push the job has been started
-    sleep(randint(20,20))
+    sleep(randint(20, 20))
     results = ["static/demo/combined/plots/index.html"]
     return True, results
-
-# def finish_job(user, analysis_id, analysis_name, results, datatype, j_type):
-#     """Marks current job as DONE in the DB and checks if the analysis is done
-
-#     INPUTS:
-#         user: username of user owner of the analysis
-#         analysis_id: DB id of the analysis
-#         analysis_name: name of the analysis
-#         results: list of paths to the job output
-#         datatype: job's datatype
-#         j_type: type of job
-
-#     Raises a RuntimeError if there is any error connecting with the DB
-#     """
-#     # Set job results
-#     # Create a tuple with the SQL values
-#     # Format: (SQL list of output files, datatype, job run, analysis id)
-#     sql_results = ( "{%s}" % ','.join(results), datatype, j_type, analysis_id)
-
-#     # Update job in job table to done and with their results
-#     SQL = """UPDATE qiita_job SET job_done = true, job_results = %s WHERE
-#         job_datatype = %s AND job_type = %s AND analysis_id = %s"""
-#     try:
-#         pgcursor = postgres.cursor()
-#         pgcursor.execute(SQL, sql_results)
-#         postgres.commit()
-#     except PostgresError, e:
-#         pgcursor.close()
-#         postgres.rollback()
-#         raise RuntimeError("Can't finish off job: %s" % str(e))
-
-#     # Check that all the jobs from current analysis are done
-#     SQL = "SELECT job_done FROM qiita_job WHERE analysis_id = %s"
-#     try:
-#         pgcursor.execute(SQL, (analysis_id,))
-#         job_status = pgcursor.fetchall()
-#         pgcursor.close()
-#     except  PostgresError, e:
-#         pgcursor.close()
-#         postgres.rollback()
-#         raise RuntimeError("Can't get job status: %s" % str(e))
-
-#     # If all done -> call finish analysis
-#     if all([status[0] for status in job_status]):
-#         finish_analysis(user, analysis_id, analysis_name)
