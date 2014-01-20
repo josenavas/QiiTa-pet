@@ -39,3 +39,6 @@ nosetests.xml
 
 #OS X files
 .DS_Store
+
+#dump file
+qiita_pet/dump.rdb
