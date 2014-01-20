@@ -9,7 +9,8 @@ import tornado.web
 import tornado.websocket
 from tornado.options import define, options
 from hashlib import sha512
-from qiita_pet.settings import *
+from qiita_pet.settings import (DEBUG, STATIC_PATH, TEMPLATE_PATH,
+                                COOKIE_SECRET, SINGLE, COMBINED)
 from qiita_pet.app.tasks import delete_job
 from qiita_pet.app.analysis import switchboard
 from qiita_pet.push import MessageHandler
