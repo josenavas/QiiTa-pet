@@ -31,6 +31,8 @@ RUNING THE EXAMPLE
 
 Add the base folder to your PYTHONPATH.
 
+> export PYTHONPATH=/path/to/QiiTa-pet/
+
 Start the background daemons for redis-server and postgreSQL.
 
 Start an IPython cluster:
@@ -47,7 +49,7 @@ Start the webserver by running:
 
 > python webserver.py
 
-Navigate to localhost:8888 and create a user/pass to log in with. Everything else should be self explanatory.
+Navigate to http://localhost:8888 and create a user/pass to log in with. Everything else should be self explanatory.
 
 KNOWN ISSUES
 =================
