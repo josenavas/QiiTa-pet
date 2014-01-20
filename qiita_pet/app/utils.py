@@ -83,23 +83,33 @@ class MetaAnalysisData(object):
             raise ValueError('Datatype or analysis passed not part of analysis!')
 
     def html(self):
-        html = '<table width="100%"><tr><td width="34%""><h3>Studies</h3>'
+        html = ['<table width="100%"><tr><td width="34%""><h3>Studies</h3>']
+        
         for study in self.get_studies():
-            html += study + "<br />"
-        html += '</td><td width="33%"><h3>Metadata</h3>'
+            html.append('%s<br />' % study)
+        
+        html.append('</td><td width="33%"><h3>Metadata</h3>')
+
         for metadata in self.get_metadata():
-            html += metadata + "<br />"
-        html += '</td><td width="33%"><h3>Datatypes</h3>'
+            html.append('%s<br />' % metadata)
+        
+        html.append('</td><td width="33%"><h3>Datatypes</h3>')
+
         for datatype in self.get_datatypes():
-            html += datatype + "<br />"
-        html += "</td><tr></table>"
-        html += '<h3>Option Settings</h3>'
+            html.append('%s<br />' % datatype)
+        
+        html.append('</td><tr></table>')
+
+        html.append('<h3>Option Settings</h3>')
+        
         for datatype in self.get_datatypes():
             for job in self.get_jobs(datatype):
-                html += ''.join(['<table width=32%" style="display: \
-                    inline-block;"><tr><td><b>',datatype,' - ',
-                    job, '</b></td></tr><tr><td>'])
+                html.append(''.join(['<table width=32%" style="display: \
+                            inline-block;"><tr><td><b>',datatype,' - ',
+                            job, '</b></td></tr><tr><td>']))
+
                 for opt, value in self.iter_options(datatype, job):
-                    html += ''.join([opt, ':', str(value), '<br />'])
-                html += '</td></tr></table>'
-        return html
+                    html.append(''.join([opt, ':', str(value), '<br />']))
+                html.append('</td></tr></table>')
+
+        return ' '.join(html)
