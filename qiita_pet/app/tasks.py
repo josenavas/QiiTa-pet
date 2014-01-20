@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import absolute_import
+
 __author__ = "Joshua Shorenstein"
 __copyright__ = "Copyright 2013, The QiiTa-pet Project"
 __credits__ = ["Joshua Shorenstein", "Jose Antonio Navas Molina"]
@@ -9,7 +11,6 @@ __maintainer__ = "Joshua Shorenstein"
 __email__ = "Joshua.Shorenstein@colorado.edu"
 __status__ = "Development"
 
-from __future__ import absolute_import
 from qiita_pet.app.celery import celery
 from qiita_pet.app.connections import postgres
 
