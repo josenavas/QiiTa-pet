@@ -2,49 +2,164 @@ from qiita_pet.app.connections import lview, postgres, r_server
 from time import sleep
 from json import dumps
 from random import randint
+from redis.exceptions import RedisError
+from psycopg2 import Error as PostgresError
 
 ##################################
 #         Helper functions       #
 ##################################
 
 def push_notification(user, analysis, job, msg, files=[], done=False):
-    '''Creates JSON and takes care of push notification'''
+    """Creates JSON and takes care of push notification
+
+    INPUTS:
+        user: username of user owner of the analysis
+        analysis: name of the analysis
+        job: job that submits the message
+        msg: the actual message to be pushed
+        files: list of paths to the job output
+        done: true if the job completed successfully, false otherwise
+
+    OUTPUT:
+        tuple (boolean, str): the boolean indicates if the push was successful,
+            and the str contains the error in case of a failed push.
+    """
+    # Construct the json object message
     jsoninfo = {
         'analysis': analysis,
         'job': job,
         'msg': msg,
         'results': files,
+        'done' : 1 if done else 0
     }
-    if done:
-        jsoninfo['done'] = 1
-    else:
-        jsoninfo['done'] = 0
+    # if done:
+    #     jsoninfo['done'] = 1
+    # else:
+    #     jsoninfo['done'] = 0
     jsoninfo = dumps(jsoninfo)
-    #need the rpush and publish for leaving page and if race condition
+    # Send the message
     try:
+        # Need the rpush and publish for leaving page and if race condition
         r_server.rpush(user + ":messages", jsoninfo)
         r_server.publish(user, jsoninfo)
-    except Exception, e:
-        print "Can't push!\n", str(e), "\n", str(jsoninfo)
+    except RedisError, e:
+        # Push failed, return False and an error message
+        return False, "Can't push!\n%s\n%s" % (str(e), str(jsoninfo))
+    # Push successful, return True without any error message
+    return True, None
 
-def finish_job(user, analysis_id, analysis_name, results, datatype, j_type):
-    """"""
-    # Set job results
+@lview.remote(block=False)
+def switchboard(user, analysis_data):
+    """Fires off all jobs for a given analysis.
+
+    INPUTS:
+        user: username of user requesting job
+        analysis_data: MetaAnalysisData object with all information in it.
+
+    Raises a RuntimeError if there is any error connecting with the DB
+    """
+    analysis_name = analysis_data.get_analysis()
+
+    # Insert analysis into the postgres analysis table
+    SQL = """INSERT INTO qiita_analysis (qiita_username, analysis_name, 
+        analysis_studies, analysis_metadata, analysis_timestamp) VALUES 
+        (%s, %s, %s, %s, 'now') RETURNING analysis_id"""
+    sql_studies_list = "{%s}" % ','.join(analysis_data.get_studies())
+    sql_metadata_list = "{%s}" % ','.join(analysis_data.get_metadata())
+    parameters = (user, analysis_name, sql_studies_list, sql_metadata_list)
+    try:
+        pgcursor = postgres.cursor()
+        pgcursor.execute(SQL, parameters)
+        analysis_id = pgcursor.fetchone()[0]
+        postgres.commit()
+    except PostgresError, e:
+        pgcursor.close()
+        postgres.rollback()
+        raise RuntimeError("Can't add meta analysis to table: %s" % str(e))
+
+    # Insert all jobs into jobs table
+    SQL = """INSERT INTO qiita_job (analysis_id, job_datatype, job_type, 
+        job_options) VALUES (%s, %s, %s, %s)"""
+    jobs_list = []
+    for datatype in analysis_data.get_datatypes():
+        for job in analysis_data.get_jobs(datatype):
+            jobs_list.append( (str(analysis_id), datatype, job, 
+                dumps(analysis_data.get_options(datatype, job))))
+    try:
+        pgcursor.executemany(SQL, jobs_list)
+        postgres.commit()
+        pgcursor.close()
+    except PostgresError, e:
+        pgcursor.close()
+        postgres.rollback()
+        raise RuntimeError("Can't add meta analysis jobs to table: %s" % str(e))
+
+    # Submit the jobs
+    for datatype in analysis_data.get_datatypes():
+        for job in analysis_data.get_jobs(datatype):
+            opts = analysis_data.get_options(datatype, job)
+            job_handler(user, analysis_id, analysis_name, datatype, job, opts)
+            # functions_dict[analysis](user, analysis_id, analysis_name, datatype, opts)
+
+@lview.remote(block=False)
+def job_handler(user, analysis_id, analysis_name, datatype, job, opts):
+    """
+
+    INPUTS:
+        user: username of user owner of the analysis
+        analysis_id: DB id of the analysis
+        analysis_name: name of the analysis
+        datatype: job's datatype
+        job: name of the job to run
+        opts: arguments of the job
+
+    Raises a RuntimeError if there is any error connecting with the DB
+    """
+    # Dictionary that maps job name with the actual function that
+    # executes the job
+    job_functions_dict = {
+        'Alpha_Diversity': alpha_diversity,
+        'Beta_Diversity': beta_diversity,
+        'Procrustes': procrustes
+    }
+
+    # Build job identifier for message handling
+    datatype_job = '%s:%s' % (datatype, job)
+    # Push the job has been started
+    push_notification(user, analysis_name, datatype_job, 'Running')
+
+    # Run the actual job
+    # This is needed due to the dummy functions
+    # we will need to remove this once we are calling
+    # the real functions
+    opts['datatype'] = datatype
+    success, results = job_functions_dict[job](opts)
+    if success:
+        # Push the job finished successfully
+        push_notification(user, analysis_name, datatype_job, 'Completed',
+                          results, done=True)
+    else:
+        # Push the job failed
+        push_notification(user, analysis_name, datatype_job, 'ERROR', done=True)
+
+    # Mark current job as DONE in the DB and check if the other jobs
+    # of the same analysis are done
+
     # Create a tuple with the SQL values
     # Format: (SQL list of output files, datatype, job run, analysis id)
-    sql_results = ( "{%s}" % ','.join(results), datatype, j_type, analysis_id)
+    sql_results = ( "{%s}" % ','.join(results), datatype, job, analysis_id)
 
     # Update job in job table to done and with their results
-    SQL = "UPDATE qiita_job SET job_done = true, job_results = %s  WHERE \
-        job_datatype = %s AND job_type = %s AND analysis_id = %s"
+    SQL = """UPDATE qiita_job SET job_done = true, job_results = %s WHERE
+        job_datatype = %s AND job_type = %s AND analysis_id = %s"""
     try:
         pgcursor = postgres.cursor()
         pgcursor.execute(SQL, sql_results)
         postgres.commit()
-    except Exception, e:
+    except PostgresError, e:
         pgcursor.close()
         postgres.rollback()
-        raise Exception("Can't finish off job!\n"+str(e))
+        raise RuntimeError("Can't finish off job: %s" % str(e))
 
     # Check that all the jobs from current analysis are done
     SQL = "SELECT job_done FROM qiita_job WHERE analysis_id = %s"
@@ -52,28 +167,37 @@ def finish_job(user, analysis_id, analysis_name, results, datatype, j_type):
         pgcursor.execute(SQL, (analysis_id,))
         job_status = pgcursor.fetchall()
         pgcursor.close()
-    except  Exception, e:
+    except  PostgresError, e:
         pgcursor.close()
         postgres.rollback()
-        raise Exception("Can't get job status!\n"+str(e))
+        raise RuntimeError("Can't get job status: %s" % str(e))
 
     # If all done -> call finish analysis
     if all([status[0] for status in job_status]):
         finish_analysis(user, analysis_id, analysis_name)
 
 def finish_analysis(user, analysis_id, analysis_name):
-    """"""
+    """Marks current analysis as done in the DB
+
+    INPUTS:
+        user: username of user owner of the analysis
+        analysis_id: DB id of the analysis
+        analysis_name: name of the analysis
+
+    Raises a RuntimeError if there is any error connecting with the DB
+    """
     # Update analysis to done in analysis table
-    SQL = "UPDATE qiita_analysis SET analysis_done = true WHERE analysis_id = %s"
+    SQL = """UPDATE qiita_analysis SET analysis_done = true WHERE
+        analysis_id = %s"""
     try:
         pgcursor = postgres.cursor()
         pgcursor.execute(SQL, (analysis_id,))
         postgres.commit()
         pgcursor.close()
-    except Exception, e:
+    except PostgresError, e:
         pgcursor.close()
         postgres.rollback()
-        raise Exception("Can't finish off analysis!\n"+str(e))
+        raise RuntimeError("Can't finish off analysis: %s" % str(e))
 
     # Wipe out all messages from redis list so no longer pushed to user
     for message in r_server.lrange(user + ':messages', 0, -1):
@@ -83,242 +207,79 @@ def finish_analysis(user, analysis_id, analysis_name):
     # Finally, push finished state
     push_notification(user, analysis_name, 'done', 'allcomplete')
 
-@lview.remote(block=False)
-def switchboard(user, analysis_data):
-    '''Fires off all analyses for a given job.
+###################################
+#       Analysis functions        #
+#       ------------------        #
+# These dummy functions will be   #
+# removed once we can call the    #
+# real QIIME functions            #
+###################################
 
-    INPUTS:
-        user: username of user requesting job
-        analysis_data: MetaAnalysisData object with all information in it.
+def alpha_diversity(opts):
+    """Dummy function"""
+    sleep(randint(5,10))
+    datatype = opts['datatype']
+    results = ["static/demo/alpha/%s/alpha_rarefaction_plots/rarefaction_plots.html" % datatype.lower()]
+    return True, results
 
-    OUTPUT: NONE '''
+def beta_diversity(opts):
+    """Dummy function"""
+    sleep(randint(10,20))
+    datatype = opts['datatype']
+    if datatype == "16S":
+        results = ["static/demo/beta/emperor/unweighted_unifrac_16s/index.html", "static/demo/beta/emperor/weighted_unifrac_16s/index.html",]
+    else:
+        results = ["static/demo/beta/emperor/%s/index.html" % datatype.lower()]
+    return True, results
 
-    analysis_name = analysis_data.get_analysis()
-
-    # Insert analysis into the postgres analysis table
-    SQL = '''INSERT INTO qiita_analysis (qiita_username, analysis_name, 
-        analysis_studies, analysis_metadata, analysis_timestamp) VALUES 
-        (%s, %s, %s, %s, 'now') RETURNING analysis_id'''
-    sql_studies_list = "{%s}" % ','.join(analysis_data.get_studies())
-    sql_metadata_list = "{%s}" % ','.join(analysis_data.get_metadata())
-    parameters = (user, analysis_name, sql_studies_list, sql_metadata_list)
-    try:
-        pgcursor = postgres.cursor()
-        pgcursor.execute(SQL, parameters)
-        analysis_id = pgcursor.fetchone()[0]
-        postgres.commit()
-    except Exception, e:
-        postgres.rollback()
-        raise RuntimeError("Can't add meta analysis to table!\n"+str(e))
-
-    # Insert all jobs into jobs table
-    SQL = """INSERT INTO qiita_job (analysis_id, job_datatype, job_type, 
-        job_options) VALUES (%s, %s, %s, %s)"""
-    jobs_list = []
-    for datatype in analysis_data.get_datatypes():
-        for analysis in analysis_data.get_jobs(datatype):
-            jobs_list.append( (str(analysis_id), datatype, analysis, 
-                dumps(analysis_data.get_options(datatype, analysis))))
-    try:
-        pgcursor.executemany(SQL, jobs_list)
-        postgres.commit()
-        pgcursor.close()
-    except Exception, e:
-        pgcursor.close()
-        postgres.rollback()
-        raise RuntimeError("Can't add metaanalysis jobs to table!\n"+str(e))
-
-    # BLAH
-    functions_dict = {
-        'Alpha_Diversity': Alpha_Diversity,
-        'Beta_Diversity': Beta_Diversity,
-        'Procrustes': Procrustes
-    }
-
-    # Submit the jobs
-    for datatype in analysis_data.get_datatypes():
-        for analysis in analysis_data.get_jobs(datatype):
-            opts = analysis_data.get_options(datatype, analysis)
-            functions_dict[analysis](user, analysis_id, analysis_name,
-                                     datatype, opts)
-
-    # Celery dependent
-    # analgroup = []
-    # for datatype in analysis_data.get_datatypes():
-    #     for analysis in analysis_data.get_analyses(datatype):
-    #         s = signature('app.tasks.'+analysis, args=(user, jobname, datatype,
-    #             analysis_data.get_options(datatype, analysis)))
-    #         analgroup.append(s)
-    # job = group(analgroup)
-    # res = job.apply_async()
-    # results = res.join()
-    # End of Celery dependent
-
-##################################
-#       Analysis functions       #
-##################################
-
-@lview.remote(block=False)
-def OTU_Table(user, jobname, datatype, opts):
-    push_notification(user, jobname, datatype + ':OTU_Table', 'Running')
-    try:
-        sleep(randint(1,5))
-        results = ["placeholder.html"]
-        push_notification(user, jobname, datatype + ':OTU_Table', 'Completed',
-            results, done=True)
-    except Exception, e:
-        push_notification(user, jobname, datatype + ':OTU_Table',
-            'ERROR: ' + str(e), done=True)
-    #MUST RETURN IN FORMAT (results, datatype, analysis)
-    return [results, datatype, 'OTU_Table']
-
-
-@lview.remote(block=False)
-def TopiaryExplorer_Visualization(user, jobname, datatype, opts):
-    push_notification(user, jobname, 
-        datatype + ':TopiaryExplorer_Visualization', 'Running')
-    try:
-        sleep(randint(5,20))
-        results = ["placeholder.html"]
-        push_notification(user, jobname, 
-            datatype + ':TopiaryExplorer_Visualization', 'Completed',
-            results, done=True)
-    except Exception, e:
-        push_notification(user, jobname, datatype + ':TopiaryExplorer_Visualization',
-            'ERROR: ' + str(e), done=True)
-    #MUST RETURN IN FORMAT (results, datatype, analysis)
-    return [results, datatype, 'TopiaryExplorer_Visualization']
-
-
-@lview.remote(block=False)
-def Heatmap(user, jobname, datatype, opts):
-    push_notification(user, jobname, datatype + ':Heatmap', 'Running')
-    try:
-        sleep(randint(5,20))
-        results = ["placeholder.html"]
-        push_notification(user, jobname, datatype + ':Heatmap', 'Completed',
-            results, done=True)
-    except Exception, e:
-        push_notification(user, jobname, datatype + ':Heatmap',
-            'ERROR: ' + str(e), done=True)
-    #MUST RETURN IN FORMAT (results, datatype, analysis)
-    return [results, datatype, 'Heatmap']
-
-
-@lview.remote(block=False)
-def Heatmap(user, jobname, datatype, opts):
-    push_notification(user, jobname, datatype + ':Heatmap', 'Running')
-    try:
-        sleep(randint(5,20))
-        results = ["placeholder.html"]
-        push_notification(user, jobname, datatype + ':Heatmap', 'Completed',
-            results, done=True)
-    except Exception, e:
-        push_notification(user, jobname, datatype + ':Heatmap',
-            'ERROR: ' + str(e), done=True)
-    #MUST RETURN IN FORMAT (results, datatype, analysis)
-    return [results, datatype, 'Heatmap']
-
-
-@lview.remote(block=False)
-def Heatmap(user, jobname, datatype, opts):
-    push_notification(user, jobname, datatype + ':Heatmap', 'Running')
-    try:
-        sleep(randint(5,20))
-        results = ["placeholder.html"]
-        push_notification(user, jobname, datatype + ':Heatmap', 'Completed',
-            results, done=True)
-    except Exception, e:
-        push_notification(user, jobname, datatype + ':Heatmap',
-            'ERROR: ' + str(e), done=True)
-    #MUST RETURN IN FORMAT (results, datatype, analysis)
-    return [results, datatype, 'Heatmap']
-
-
-@lview.remote(block=False)
-def Taxonomy_Summary(user, jobname, datatype, opts):
-    push_notification(user, jobname, datatype + ':Taxonomy_Summary', 'Running')
-    try:
-        sleep(randint(5,20))
-        results = ["placeholder.html"]
-        push_notification(user, jobname, datatype + ':Taxonomy_Summary', 'Completed',
-            results, done=True)
-    except Exception, e:
-        push_notification(user, jobname, datatype + ':Taxonomy_Summary',
-            'ERROR: ' + str(e), done=True)
-    #MUST RETURN IN FORMAT (results, datatype, analysis)
-    return [results, datatype, 'Taxonomy_Summary']
-
-
-@lview.remote(block=False)
-def Alpha_Diversity(user, analysis_id, analysis_name, datatype, opts):
+def procrustes(opts):
+    """Dummy function"""
     # Push the job has been started
-    push_notification(user, analysis_name, datatype + ':Alpha_Diversity', 'Running')
-    try:
-        # Run the actual job
-        sleep(randint(5,10))
-        results = ["static/demo/alpha/%s/alpha_rarefaction_plots/rarefaction_plots.html" % datatype.lower()]
-        # Push the job is done
-        push_notification(user, analysis_name, datatype + ':Alpha_Diversity', 'Completed',
-            results, done=True)
-    except Exception, e:
-        # Push the job failed
-        push_notification(user, analysis_name, datatype + ':Alpha_Diversity',
-            'ERROR: ' + str(e), done=True)
-    # Finish the job
-    finish_job(user, analysis_id, analysis_name, results, datatype, 'Alpha_Diversity')
+    sleep(randint(20,20))
+    results = ["static/demo/combined/plots/index.html"]
+    return True, results
 
-@lview.remote(block=False)
-def Beta_Diversity(user, analysis_id, analysis_name, datatype, opts):
-    # Push the job has been started
-    push_notification(user, analysis_name, datatype + ':Beta_Diversity', 'Running')
-    try:
-        # Run the actual job
-        sleep(randint(10,20))
-        if datatype=="16S":
-            results = ["static/demo/beta/emperor/unweighted_unifrac_16s/index.html", "static/demo/beta/emperor/weighted_unifrac_16s/index.html",]
-        else:
-            results = ["static/demo/beta/emperor/%s/index.html" % datatype.lower()]
-        # Push the job is done
-        push_notification(user, analysis_name, datatype + ':Beta_Diversity', 'Completed',
-            results, done=True)
-    except Exception, e:
-        # Push the job failed
-        push_notification(user, analysis_name, datatype + ':Beta_Diversity',
-            'ERROR: ' + str(e), done=True)
-    # Finish the job
-    finish_job(user, analysis_id, analysis_name, results, datatype, 'Beta_Diversity')
+# def finish_job(user, analysis_id, analysis_name, results, datatype, j_type):
+#     """Marks current job as DONE in the DB and checks if the analysis is done
 
+#     INPUTS:
+#         user: username of user owner of the analysis
+#         analysis_id: DB id of the analysis
+#         analysis_name: name of the analysis
+#         results: list of paths to the job output
+#         datatype: job's datatype
+#         j_type: type of job
 
-@lview.remote(block=False)
-def Procrustes(user, analysis_id, analysis_name, datatype, opts):
-    # Push the job has been started
-    push_notification(user, analysis_name, datatype + ':Procrustes', 'Running')
-    try:
-        # Run the actual job
-        sleep(randint(20,20))
-        results = ["static/demo/combined/plots/index.html"]
-        # Push the job is done
-        push_notification(user, analysis_name, datatype + ':Procrustes', 'Completed',
-            results, done=True)
-    except Exception, e:
-        # Push the job failed
-        push_notification(user, analysis_name, datatype + ':Procrustes',
-            'ERROR: ' + str(e), done=True)
-    # Finish the job
-    finish_job(user, analysis_id, analysis_name, results, datatype, 'Procrustes')
+#     Raises a RuntimeError if there is any error connecting with the DB
+#     """
+#     # Set job results
+#     # Create a tuple with the SQL values
+#     # Format: (SQL list of output files, datatype, job run, analysis id)
+#     sql_results = ( "{%s}" % ','.join(results), datatype, j_type, analysis_id)
 
+#     # Update job in job table to done and with their results
+#     SQL = """UPDATE qiita_job SET job_done = true, job_results = %s WHERE
+#         job_datatype = %s AND job_type = %s AND analysis_id = %s"""
+#     try:
+#         pgcursor = postgres.cursor()
+#         pgcursor.execute(SQL, sql_results)
+#         postgres.commit()
+#     except PostgresError, e:
+#         pgcursor.close()
+#         postgres.rollback()
+#         raise RuntimeError("Can't finish off job: %s" % str(e))
 
-@lview.remote(block=False)
-def Network_Analysis(user, jobname, datatype, opts):
-    push_notification(user, jobname, datatype + ':Network_Analysis', 'Running')
-    try:
-        sleep(randint(5,20))
-        results = ["placeholder.html"]
-        push_notification(user, jobname, datatype + ':Network_Analysis', 'Completed',
-            results, done=True)
-    except Exception, e:
-        push_notification(user, jobname, datatype + ':Network_Analysis',
-            'ERROR: ' + str(e), done=True)
-    #MUST RETURN IN FORMAT (results, datatype, analysis)
-    return [results, datatype, 'Network_Analysis']
+#     # Check that all the jobs from current analysis are done
+#     SQL = "SELECT job_done FROM qiita_job WHERE analysis_id = %s"
+#     try:
+#         pgcursor.execute(SQL, (analysis_id,))
+#         job_status = pgcursor.fetchall()
+#         pgcursor.close()
+#     except  PostgresError, e:
+#         pgcursor.close()
+#         postgres.rollback()
+#         raise RuntimeError("Can't get job status: %s" % str(e))
+
+#     # If all done -> call finish analysis
+#     if all([status[0] for status in job_status]):
+#         finish_analysis(user, analysis_id, analysis_name)

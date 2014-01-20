@@ -6,7 +6,7 @@ from IPython.parallel import Client
 try:
     r_server = Redis()
 except:
-      raise RuntimeError("ERROR: unable to connect to the REDIS database.")
+    raise RuntimeError("ERROR: unable to connect to the REDIS database.")
 
 # Set up Postgres connection
 try:
