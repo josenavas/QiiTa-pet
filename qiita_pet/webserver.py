@@ -395,8 +395,8 @@ class MetaAnalysisHandler(BaseHandler):
         elif page == '2':
             analysisname = self.get_argument('analysisname')
             #check if metaAnalysis name already exists
-            SQL = "SELECT analysis_id FROM qiita_analysis \
-                WHERE qiita_username = %s AND analysis_name = %s"
+            SQL = """SELECT analysis_id FROM qiita_analysis
+                WHERE qiita_username = %s AND analysis_name = %s"""
             try:
                 pgcursor = postgres.cursor()
                 pgcursor.execute(SQL, (self.user, analysisname))
