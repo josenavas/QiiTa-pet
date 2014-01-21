@@ -80,6 +80,7 @@ function validateForm() {
       6) Meta-analysis results<br />
     </td>
     <td>
+    <span id="genError" style="color:red">{{error}}</span>
     <form action="/meta/2" method="post" id="meta1_form" onsubmit="return(validateForm());">
       <table width="70%" border="0">
         <tr>
@@ -124,7 +125,6 @@ function validateForm() {
           <option value="Metabolites">Metabolites</option>
           <option value="Metagenomes">Metagenomes</option>
           <option value="Metaproteomes isolates">Metaproteomes isolates</option>
-          <option value="Combined">** Combine previous datasets **</option>
         </select>
       </fieldset>
            </td>
