@@ -19,15 +19,14 @@ from IPython.parallel.error import IPythonError
 try:
     r_server = Redis()
 except RedisError, e:
-    raise RuntimeError("Unable to connect to the REDIS database: %s" % str(e))
+    raise RuntimeError("Unable to connect to the REDIS database: %s" % e)
 
 # Set up Postgres connection
 try:
     postgres = pg_connect("dbname='qiita' user='defaultuser' \
         password='defaultpassword' host='localhost'")
 except PostgresError, e:
-    raise RuntimeError("Unable to connect to the POSTGRES database: %s" %
-                       str(e))
+    raise RuntimeError("Unable to connect to the POSTGRES database: %s" % e)
 
 # Set up IPython connection
 try:
@@ -35,4 +34,4 @@ try:
     lview = ipython_client.load_balanced_view()
     lview.block = False
 except IPythonError, e:
-    raise RuntimeError("Unable to connect to the IPython cluster: %s" % str(e))
+    raise RuntimeError("Unable to connect to the IPython cluster: %s" % e)

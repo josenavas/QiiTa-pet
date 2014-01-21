@@ -95,7 +95,8 @@ class AuthCreateHandler(BaseHandler):
     def get(self):
         try:
             error_message = self.get_argument("error")
-        except:
+        # Tornado can raise an Exception directly, not a defined type
+        except Exception, e:
             error_message = ""
         self.render("create.html", user=self.get_current_user(),
                     errormessage=error_message)
@@ -220,8 +221,7 @@ class WaitingHandler(BaseHandler):
         except PostgresError, e:
             pgcursor.close()
             postgres.rollback()
-            raise RuntimeError("Analysis info can not be retrieved: %s" %
-                               str(e))
+            raise RuntimeError("Analysis info can not be retrieved: %s" % e)
 
         analysis_done = bool(job_hold[0])
         analysis_id = job_hold[1]
@@ -239,8 +239,7 @@ class WaitingHandler(BaseHandler):
             except PostgresError, e:
                 pgcursor.close()
                 postgres.rollback()
-                raise RuntimeError("Job info can not be retrieved: %s" %
-                                   str(e))
+                raise RuntimeError("Job info can not be retrieved: %s" % e)
 
             jobs = []
             for j in job_hold:
@@ -276,7 +275,7 @@ class RunningHandler(BaseHandler):
         except PostgresError, e:
             pgcursor.close()
             postgres.rollback()
-            raise RuntimeError("Job info can not be retrieved: %s" % str(e))
+            raise RuntimeError("Job info can not be retrieved: %s" % e)
 
         if analyses is None:
             analyses = []
@@ -318,8 +317,7 @@ class ShowJobHandler(BaseHandler):
         except PostgresError, e:
             pgcursor.close()
             postgres.rollback()
-            raise RuntimeError("Analysis info can not be retrieved: %s" %
-                               str(e))
+            raise RuntimeError("Analysis info can not be retrieved: %s" % e)
 
         SQL = "SELECT * FROM qiita_job WHERE analysis_id = %s"
         try:
@@ -330,7 +328,7 @@ class ShowJobHandler(BaseHandler):
         except PostgresError, e:
             pgcursor.close()
             postgres.rollback()
-            raise RuntimeError("Job info can not be retrieved: %s" % str(e))
+            raise RuntimeError("Job info can not be retrieved: %s" % e)
 
         self.render("analysisinfo.html", user=user, analysis=analysis,
                     analysisinfo=analysis_info)
@@ -347,8 +345,7 @@ class ShowJobHandler(BaseHandler):
         except PostgresError, e:
             pgcursor.close()
             postgres.rollback()
-            raise RuntimeError("Analysis info can not be retrieved: %s" %
-                               str(e))
+            raise RuntimeError("Analysis info can not be retrieved: %s" % e)
 
         SQL = "SELECT analysis_name FROM qiita_analysis WHERE analysis_id = %s"
         try:
@@ -359,8 +356,7 @@ class ShowJobHandler(BaseHandler):
         except PostgresError, e:
             pgcursor.close()
             postgres.rollback()
-            raise RuntimeError("Analysis info can not be retrieved: %s" %
-                               str(e))
+            raise RuntimeError("Analysis info can not be retrieved: %s" % e)
 
         self.render("analysisinfo.html", user=user, analysis=name,
                     analysisinfo=analysis_info)
@@ -436,7 +432,7 @@ class MetaAnalysisHandler(BaseHandler):
                         analysisinfo=metaAnalysis)
 
         else:
-            raise NotImplementedError("MetaAnalysis Page "+page+" missing!")
+            raise NotImplementedError("MetaAnalysis Page %s missing!" % page)
 
 
 class MockupHandler(BaseHandler):

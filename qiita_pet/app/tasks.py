@@ -13,6 +13,7 @@ __status__ = "Development"
 
 from qiita_pet.app.celery import celery
 from qiita_pet.app.connections import postgres
+from psycopg2 import Error as PostgresError
 
 
 @celery.task
@@ -25,7 +26,7 @@ def delete_job(user, jobid):
                         (jobid,))
         postgres.commit()
         pgcursor.close()
-    except Exception, e:
+    except PostgresError, e:
         pgcursor.close()
         postgres.rollback()
-        raise Exception("Can't remove metaanalysis from database!\n"+str(e))
+        raise RuntimeError("Can't remove metaanalysis from database: %s" % e)

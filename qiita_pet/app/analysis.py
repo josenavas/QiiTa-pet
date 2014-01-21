@@ -53,7 +53,7 @@ def push_notification(user, analysis, job, msg, files=[], done=False):
         r_server.publish(user, jsoninfo)
     except RedisError, e:
         # Push failed, return False and an error message
-        return False, "Can't push!\n%s\n%s" % (str(e), str(jsoninfo))
+        return False, "Can't push!\n%s\n%s" % (e, str(jsoninfo))
 
     # Push successful, return True without any error message
     return True, None
@@ -86,7 +86,7 @@ def switchboard(user, analysis_data):
     except PostgresError, e:
         pgcursor.close()
         postgres.rollback()
-        raise RuntimeError("Can't add meta analysis to table: %s" % str(e))
+        raise RuntimeError("Can't add meta analysis to table: %s" % e)
 
     # Insert all jobs into jobs table
     SQL = """INSERT INTO qiita_job (analysis_id, job_datatype, job_type,
@@ -103,8 +103,7 @@ def switchboard(user, analysis_data):
     except PostgresError, e:
         pgcursor.close()
         postgres.rollback()
-        raise RuntimeError("Can't add meta analysis jobs to table: %s" %
-                           str(e))
+        raise RuntimeError("Can't add meta analysis jobs to table: %s" % e)
 
     # Submit the jobs
     for datatype in analysis_data.get_datatypes():
@@ -172,7 +171,7 @@ def job_handler(user, analysis_id, analysis_name, datatype, job, opts):
     except PostgresError, e:
         pgcursor.close()
         postgres.rollback()
-        raise RuntimeError("Can't finish off job: %s" % str(e))
+        raise RuntimeError("Can't finish off job: %s" % e)
 
     # Check that all the jobs from current analysis are done
     SQL = "SELECT job_done FROM qiita_job WHERE analysis_id = %s"
@@ -183,7 +182,7 @@ def job_handler(user, analysis_id, analysis_name, datatype, job, opts):
     except PostgresError, e:
         pgcursor.close()
         postgres.rollback()
-        raise RuntimeError("Can't get job status: %s" % str(e))
+        raise RuntimeError("Can't get job status: %s" % e)
 
     # If all done -> call finish analysis
     if all([status[0] for status in job_status]):
@@ -211,7 +210,7 @@ def finish_analysis(user, analysis_id, analysis_name):
     except PostgresError, e:
         pgcursor.close()
         postgres.rollback()
-        raise RuntimeError("Can't finish off analysis: %s" % str(e))
+        raise RuntimeError("Can't finish off analysis: %s" % e)
 
     # Wipe out all messages from redis list so no longer pushed to user
     for message in r_server.lrange(user + ':messages', 0, -1):
