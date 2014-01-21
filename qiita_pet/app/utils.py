@@ -60,6 +60,11 @@ class MetaAnalysisData(object):
     def set_options(self, datatype, analysis, options):
         self.options[datatype + ':' + analysis] = options
 
+    def add_datatype(self, datatype):
+        if type(datatype) is not str:
+            raise TypeError("datatype should be string!")
+        self.datatypes.append(datatype)
+
     def get_user(self):
         return self.user
 

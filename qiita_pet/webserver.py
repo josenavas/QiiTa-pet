@@ -409,6 +409,10 @@ class MetaAnalysisHandler(BaseHandler):
             if metaAnalysis.get_datatypes() == []:
                 raise ValueError('Need at least one datatype selected.')
 
+            #add the combined datatype if more than one selected
+            if len(metaAnalysis.get_datatypes()) > 1:
+                metaAnalysis.add_datatype("Combined")
+
             self.render('meta2.html', user=self.user,
                         datatypes=metaAnalysis.get_datatypes(), single=SINGLE,
                         combined=COMBINED)

@@ -25,6 +25,10 @@ Python libraries
 > celery 3.1.7
 >
 > psycopg2 2.5.1
+>
+>pyzmq 14.0.1
+IMPORTANT: When installing pyzmq, make sure you install the system library as well. Install with the following pip command to get both the python and system library:
+>pip install pyzmq --install-option="--zmq=bundled"
 
 RUNING THE EXAMPLE
 =================
