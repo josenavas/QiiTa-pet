@@ -1,7 +1,19 @@
-#adapted from https://github.com/leporo/tornado-redis/blob/master/demos/websockets
+#!/usr/bin/env python
+
+__author__ = "Joshua Shorenstein"
+__copyright__ = "Copyright 2013, The QiiTa-pet Project"
+__credits__ = ["Joshua Shorenstein", "Jose Antonio Navas Molina"]
+__license__ = "BSD"
+__version__ = "0.2.0-dev"
+__maintainer__ = "Joshua Shorenstein"
+__email__ = "Joshua.Shorenstein@colorado.edu"
+__status__ = "Development"
+
+# Adapted from
+# https://github.com/leporo/tornado-redis/blob/master/demos/websockets
 
 from tornadoredis import Client
-from app.tasks import r_server
+from qiita_pet.app.connections import r_server
 from tornado.websocket import WebSocketHandler
 import tornado.gen
 from json import loads
@@ -21,7 +33,7 @@ class MessageHandler(WebSocketHandler):
 
     def get_current_user(self):
         user = self.get_secure_cookie("user")
-        if user == None:
+        if user is None:
             return ''
         else:
             return user.strip('" ')
@@ -34,8 +46,7 @@ class MessageHandler(WebSocketHandler):
             #need to split the rest off to new func so it can be asynchronous
             self.listen()
 
-
-    #decorator turns the function into an asynchronous generator object
+    # Decorator turns the function into an asynchronous generator object
     @tornado.gen.engine
     def listen(self):
         #runs task given, with the yield required to get returned value
@@ -46,10 +57,11 @@ class MessageHandler(WebSocketHandler):
         #listen from tornadoredis makes the listen object asynchronous
         #if using standard redis lib, it blocks while listening
         self.redis.listen(self.callback)
-        #try and fight race condition by loading from redis after listen started
-        #need to use std redis lib because tornadoredis is in subscribed state
+        # Try and fight race condition by loading from redis after listen
+        # started need to use std redis lib because tornadoredis is in
+        # subscribed state
         oldmessages = r_server.lrange(self.channel + ':messages', 0, -1)
-        if oldmessages != None:
+        if oldmessages is not None:
             for message in oldmessages:
                 self.write_message(message)
 

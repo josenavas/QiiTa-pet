@@ -1,3 +1,14 @@
+#!/usr/bin/env python
+
+__author__ = "Joshua Shorenstein"
+__copyright__ = "Copyright 2013, The QiiTa-pet Project"
+__credits__ = ["Joshua Shorenstein", "Antonio Gonzalez"]
+__license__ = "BSD"
+__version__ = "0.2.0-dev"
+__maintainer__ = "Joshua Shorenstein"
+__email__ = "Joshua.Shorenstein@colorado.edu"
+__status__ = "Development"
+
 import os
 DEBUG = True
 DIRNAME = os.path.dirname(__file__)
@@ -18,13 +29,14 @@ COOKIE_SECRET = base64.b64encode(uuid.uuid4().bytes + uuid.uuid4().bytes)
 
 #analyses available in QIIME. Don't forget the options template!
 SINGLE = [
-#         'TopiaryExplorer_Visualization',
-#         'Heatmap',
-#         'Taxonomy_Summary',
-        'Alpha_Diversity',
-        'Beta_Diversity',
-        ]
+    # 'TopiaryExplorer_Visualization',
+    # 'Heatmap',
+    # 'Taxonomy_Summary',
+    'Alpha_Diversity',
+    'Beta_Diversity',
+    ]
+
 COMBINED = [
-        'Procrustes',
-#         'Network_Analysis',
-        ]
+    'Procrustes',
+    # 'Network_Analysis',
+    ]
