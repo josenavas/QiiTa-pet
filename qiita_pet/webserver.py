@@ -386,14 +386,32 @@ class MetaAnalysisHandler(BaseHandler):
             #global variable that is wiped when you start a new analysis
             metaAnalysis = MetaAnalysisData()
             metaAnalysis.set_user(self.user)
-            self.render('meta1.html', user=self.user)
+            self.render('meta1.html', user=self.user, error="")
 
     @tornado.web.authenticated
     def post(self, page):
         if page == '1':
             pass
         elif page == '2':
-            metaAnalysis.set_analysis(self.get_argument('analysisname'))
+            analysisname = self.get_argument('analysisname')
+            #check if metaAnalysis name already exists
+            SQL = "SELECT analysis_id FROM qiita_analysis \
+                WHERE qiita_username = %s AND analysis_name = %s"
+            try:
+                pgcursor = postgres.cursor()
+                pgcursor.execute(SQL, (self.user, analysisname))
+                analysis_info = pgcursor.fetchall()
+                pgcursor.close()
+            except PostgresError, e:
+                pgcursor.close()
+                postgres.rollback()
+                raise RuntimeError("Name can't be checked: %s" % e)
+
+            if len(analysis_info) > 0:
+                self.render('meta1.html', user=self.user,
+                            error="Analyis name already exists!")
+
+            metaAnalysis.set_analysis(analysisname)
             metaAnalysis.set_studies(self.get_arguments('studiesView'))
 
             if metaAnalysis.get_studies() == []:
