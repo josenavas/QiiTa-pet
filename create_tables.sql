@@ -21,24 +21,27 @@ CREATE TABLE qiita_users (
 );
 
 CREATE TABLE qiita_analysis (
-    analysis_id bigserial PRIMARY KEY,
     qiita_username varchar(255) REFERENCES qiita_users(qiita_username),
     analysis_name text NOT NULL,
     analysis_studies text[] NOT NULL,
     analysis_metadata text[] NOT NULL,
     analysis_timestamp timestamp NOT NULL,
-    analysis_done bool DEFAULT false
+    analysis_done bool DEFAULT false,
+    PRIMARY KEY (qiita_username, analysis_name)
 );
 
 CREATE TABLE qiita_job (
     job_id bigserial PRIMARY KEY,
-    analysis_id bigint REFERENCES qiita_analysis(analysis_id),
+    qiita_username varchar(255),
+    analysis_name text NOT NULL,
     job_datatype text NOT NULL,
-    job_type text NOT NULL,
+    job_function text NOT NULL,
     job_options json NOT NULL,
     job_results text[],
     job_done bool DEFAULT false,
-    job_error bool DEFAULT false
+    job_error bool DEFAULT false,
+    job_error_str text,
+    FOREIGN KEY (qiita_username, analysis_name) REFERENCES qiita_analysis(qiita_username, analysis_name)
 );
 
 -- GRANT PRIVILEGES
@@ -48,8 +51,6 @@ GRANT ALL PRIVILEGES ON TABLE qiita_users to defaultuser;
 GRANT ALL PRIVILEGES ON TABLE qiita_analysis to defaultuser;
 
 GRANT ALL PRIVILEGES ON TABLE qiita_job to defaultuser;
-
-GRANT ALL PRIVILEGES ON SEQUENCE qiita_analysis_analysis_id_seq TO defaultuser;
 
 GRANT ALL PRIVILEGES ON SEQUENCE qiita_job_job_id_seq TO defaultuser;
 
